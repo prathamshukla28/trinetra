@@ -1,0 +1,12 @@
+# analyzed targets are untrusted input — never commit them
+targets/*
+!targets/.gitkeep
+
+# generated reports (keep the folder, not the contents)
+reports/*
+!reports/.gitkeep
+
+node_modules/
+*.log
+.DS_Store
+.env

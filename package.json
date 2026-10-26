@@ -1,0 +1,17 @@
+{
+  "name": "reforge",
+  "version": "0.1.0",
+  "description": "Tear it down, then forge it back — reverse-engineer, audit, and rebuild any software.",
+  "type": "module",
+  "bin": {
+    "reforge": "src/cli.js"
+  },
+  "scripts": {
+    "demo": "node src/cli.js teardown targets/sample-cli",
+    "start": "node src/cli.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "rea-agents": "^6.8.0"
+  }
+}
