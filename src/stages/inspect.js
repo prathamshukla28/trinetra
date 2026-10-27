@@ -99,6 +99,20 @@ export async function inspect(target) {
     };
   }
 
+  // Packaged app (.asar) — hand the archive straight to REA's JS reconstructor.
+  const tstat = fs.statSync(target);
+  if (tstat.isFile() && path.extname(target) === ".asar" && isReaAvailable()) {
+    const rea = await reaInspectJs(target);
+    return {
+      engine: "rea-javascript-application",
+      files: [target],
+      units: rea.units,
+      raw: [], // can't source-scan a packed archive; reconstruction only
+      provenance: rea.provenance,
+      statistics: rea.statistics,
+    };
+  }
+
   // We always read raw source (the AUDIT stage scans it). REA, when present,
   // replaces our crude unit extraction with its real semantic graph.
   const files = collectSourceFiles(target);

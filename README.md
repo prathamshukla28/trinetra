@@ -96,10 +96,22 @@ REA/Ghidra automatically.
 
 ## Install
 
+**From npm:**
+
+```bash
+npx @prathamshukla28/trinetra teardown ./my-app
+# or install globally
+npm install -g @prathamshukla28/trinetra
+```
+
+**From source:**
+
 ```bash
 git clone https://github.com/prathamshukla28/trinetra.git
 cd trinetra
 npm install          # pulls in REA (rea-agents)
+npm run demo         # audit the bundled sample
+npm run demo:asar    # reconstruct a packaged (.asar) app
 ```
 
 **Requirements**

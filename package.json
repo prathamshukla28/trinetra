@@ -1,10 +1,13 @@
 {
-  "name": "trinetra",
+  "name": "@prathamshukla28/trinetra",
   "version": "0.1.0",
   "description": "The third eye for software — reverse-engineer, audit, and rebuild any app or binary with agents.",
   "type": "module",
   "bin": {
     "trinetra": "src/cli.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "src",
@@ -14,7 +17,9 @@
   "scripts": {
     "start": "node src/cli.js",
     "demo": "node src/cli.js teardown targets/sample-cli",
-    "test": "node --test"
+    "demo:asar": "asar pack examples/demo-electron-app targets/demo-app.asar && node src/cli.js teardown targets/demo-app.asar",
+    "test": "node --test",
+    "prepublishOnly": "node --test"
   },
   "keywords": [
     "reverse-engineering",

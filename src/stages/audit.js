@@ -24,6 +24,11 @@ const SOURCE_RULES = [
 const NATIVE_RULES = [
   { id: "native-command-exec", severity: "high", re: /\b_?(system|popen|execve?|execl|execvp)\s*\(/, title: "Command execution (system / exec / popen)", why: "Spawning a shell from a binary is command-injection-prone if any input reaches it." },
   { id: "native-unsafe-string", severity: "high", re: /\b_?(strcpy|strcat|sprintf|gets)\s*\(/, title: "Unsafe C string function", why: "strcpy/strcat/sprintf/gets are unbounded — the classic buffer-overflow sources." },
+  { id: "native-embedded-secret", severity: "high", re: /(?:AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|sk_live_[A-Za-z0-9]{8,}|xox[baprs]-[A-Za-z0-9-]{10,})/, title: "Embedded secret / private key", why: "A credential baked into the binary can be extracted by anyone with the file." },
+  { id: "native-format-string", severity: "medium", re: /\b_?(printf|fprintf|vprintf|syslog)\s*\(\s*[a-z_][A-Za-z0-9_]*\s*[),]/, title: "Possible format-string bug", why: "A non-literal format argument lets input control the format string (%n writes, info leaks)." },
+  { id: "native-unsafe-memory", severity: "low", re: /\b_?(memcpy|memmove|alloca)\s*\(/, title: "Unbounded memory operation", why: "memcpy/memmove/alloca with an attacker-influenced size can overflow." },
+  { id: "native-bounded-string", severity: "low", re: /\b_?(strncpy|strncat)\s*\(/, title: "Bounded string function (verify termination)", why: "strncpy/strncat can leave the destination non-NUL-terminated." },
+  { id: "native-embedded-url", severity: "low", re: /https?:\/\/[^\s")]+/, title: "Hardcoded URL / endpoint", why: "Baked-in endpoints reveal infrastructure and can't be rotated without a rebuild." },
   { id: "native-insecure-random", severity: "low", re: /\b_?(rand|srandom|random)\s*\(/, title: "Weak randomness (C rand)", why: "C rand() is not cryptographically secure." },
 ];
 
@@ -36,7 +41,10 @@ export function canonical(f) {
   if (/random/.test(s)) return "insecure-random";
   if (/eval|new function/.test(s)) return "dynamic-code";
   if (/exec|shell|command|child_process|system|popen/.test(s)) return "command-exec";
-  if (/strcpy|strcat|sprintf|gets|overflow|buffer/.test(s)) return "unsafe-string";
+  if (/format.?string|printf/.test(s)) return "format-string";
+  if (/memcpy|memmove|alloca|unbounded memory/.test(s)) return "unsafe-memory";
+  if (/strcpy|strcat|sprintf|gets|strncpy|strncat|overflow|buffer|string function/.test(s)) return "unsafe-string";
+  if (/url|endpoint/.test(s)) return "hardcoded-url";
   return f.rule;
 }
 
