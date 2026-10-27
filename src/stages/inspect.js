@@ -95,6 +95,7 @@ export async function inspect(target) {
       overview: rea.overview,
       sampleName: rea.sampleName,
       decompDir: rea.decompDir,
+      fnHashes: rea.fnHashes,
     };
   }
 

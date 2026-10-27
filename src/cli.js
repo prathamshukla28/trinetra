@@ -1,29 +1,36 @@
 #!/usr/bin/env node
 // Trinetra — command-line entry point.
 // Usage:
-//   trinetra teardown <target>     tear a target apart, audit it, write a report
-//   trinetra teardown <target> --rebuild   also attempt a clean reimplementation
+//   trinetra teardown <target> [--rebuild]   tear a target apart, audit it, report
+//   trinetra compare <a> <b>                 diff two targets (what changed)
 
-import { teardown } from "./pipeline.js";
+import { teardown, compare } from "./pipeline.js";
 
-function parseArgs(argv) {
-  const [command, target, ...rest] = argv;
-  const flags = new Set(rest.filter((a) => a.startsWith("--")));
-  return { command, target, rebuild: flags.has("--rebuild") };
+function usage(code) {
+  console.log("Trinetra — the third eye that sees inside any software.\n");
+  console.log("  trinetra teardown <target> [--rebuild]");
+  console.log("  trinetra compare  <targetA> <targetB>\n");
+  console.log("Examples:");
+  console.log("  trinetra teardown targets/sample-cli");
+  console.log("  trinetra compare ./app-v1 ./app-v2");
+  process.exit(code);
 }
 
 async function main() {
-  const { command, target, rebuild } = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  const command = argv[0];
 
-  if (command !== "teardown" || !target) {
-    console.log("Trinetra — tear it down, then forge it back.\n");
-    console.log("  trinetra teardown <target> [--rebuild]\n");
-    console.log("Example:");
-    console.log("  trinetra teardown targets/sample-cli");
-    process.exit(command ? 1 : 0);
+  if (command === "teardown") {
+    const target = argv[1];
+    if (!target || target.startsWith("--")) usage(1);
+    await teardown(target, { rebuild: argv.includes("--rebuild") });
+  } else if (command === "compare") {
+    const [, a, b] = argv;
+    if (!a || !b) usage(1);
+    await compare(a, b);
+  } else {
+    usage(command ? 1 : 0);
   }
-
-  await teardown(target, { rebuild });
 }
 
 main().catch((err) => {

@@ -91,6 +91,8 @@ export async function reaInspectNative(target) {
     overview: samplePseudo,
     sampleName: sample?.name,
     decompDir: path.relative(ROOT, outDir),
+    // name → per-function pseudocode hash, for detecting changed functions.
+    fnHashes: Object.fromEntries(local.map((f) => [f.name, f.sha256])),
   };
 }
 

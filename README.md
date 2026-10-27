@@ -123,6 +123,9 @@ trinetra teardown <target> --rebuild    # also scaffold a clean, tested rebuild
 trinetra teardown ./src                 # a source tree
 trinetra teardown ./app.asar            # a packaged app
 trinetra teardown ./program             # a native binary (needs Ghidra)
+
+trinetra compare ./app-v1 ./app-v2      # diff two versions: added/removed/changed
+                                        # procedures + security findings by category
 ```
 
 Reports land in `reports/<name>.md` and `reports/<name>.html`.
@@ -156,7 +159,7 @@ npm test
 - [ ] Native security rules (dangerous imports, embedded secrets)
 - [ ] Correlate findings across engines
 - [x] Make the REBUILD stage generate working, test-verified code
-- [ ] `compare` mode — diff two versions down to the binary
+- [x] `compare` mode — diff two versions (procedures + findings; function-level for binaries)
 
 ## License
 

@@ -29,7 +29,7 @@ const NATIVE_RULES = [
 
 // Map a finding to a canonical concept so the same issue from different engines
 // collapses into one row.
-function canonical(f) {
+export function canonical(f) {
   const s = `${f.rule} ${f.title}`.toLowerCase();
   if (/secret|api.?key|password|token/.test(s)) return "hardcoded-secret";
   if (/md5|sha1|weak.?hash/.test(s)) return "weak-hash";

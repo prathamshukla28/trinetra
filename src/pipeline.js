@@ -9,6 +9,8 @@ import { audit } from "./stages/audit.js";
 import { rebuild } from "./stages/rebuild.js";
 import { writeReport } from "./report.js";
 import { writeHtmlReport } from "./report-html.js";
+import { diffTeardowns } from "./stages/compare.js";
+import { writeCompareReport } from "./report-compare.js";
 import { Memory } from "./memory.js";
 
 function banner(step, label) {
@@ -58,4 +60,32 @@ export async function teardown(target, { rebuild: doRebuild = false } = {}) {
   console.log(`\n\u001b[32m✔ done\u001b[0m · report → ${reportPath}`);
   console.log(`          html   → ${htmlPath}\n`);
   return { reportPath, htmlPath, findings };
+}
+
+// Diff two targets — "what changed between v1 and v2".
+export async function compare(a, b) {
+  const nameA = path.basename(a);
+  const nameB = path.basename(b);
+  console.log(`\n\u001b[1mTrinetra\u001b[0m · comparing "${nameA}" → "${nameB}"`);
+
+  console.log(`\n\u001b[36m[A]\u001b[0m inspecting ${nameA}`);
+  const inspA = await inspect(a);
+  const findA = await audit(inspA, null, a);
+
+  console.log(`\u001b[36m[B]\u001b[0m inspecting ${nameB}`);
+  const inspB = await inspect(b);
+  const findB = await audit(inspB, null, b);
+
+  const diff = diffTeardowns(
+    { name: nameA, inspection: inspA, findings: findA },
+    { name: nameB, inspection: inspB, findings: findB },
+  );
+  const paths = writeCompareReport(diff);
+  console.log(
+    `\n\u001b[32m✔ done\u001b[0m · +${diff.procedures.added.length} / -${diff.procedures.removed.length}` +
+      `${diff.hashable ? ` / ~${diff.procedures.changed.length}` : ""} procedures`,
+  );
+  console.log(`          report → ${paths.md}`);
+  console.log(`          html   → ${paths.html}\n`);
+  return diff;
 }
