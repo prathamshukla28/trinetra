@@ -14,21 +14,28 @@ test("richer native rules flag the main binary weakness classes", async () => {
   fs.writeFileSync(
     path.join(fnDir, "v.c"),
     [
-      'void f(char *s, int n){',
-      '  char b[8];',
+      "void f(char *s, int n){",
+      "  char b[8];",
       '  char *k = "AKIA1234567890ABCDEF";',
-      '  _strcpy(b, s);',
+      "  _strcpy(b, s);",
       '  _system("ls");',
-      '  _printf(s, n);',
-      '  _memcpy(b, s, n);',
+      "  _printf(s, n);",
+      "  _memcpy(b, s, n);",
       '  _connect("http://evil.example.com/beacon");',
-      '}',
+      "}",
     ].join("\n"),
   );
   try {
     const findings = await audit({ decompDir: "reports/.test-native-rules" }, {});
     const cats = new Set(findings.map((f) => f.rule));
-    for (const r of ["native-unsafe-string", "native-command-exec", "native-embedded-secret", "native-format-string", "native-unsafe-memory", "native-embedded-url"]) {
+    for (const r of [
+      "native-unsafe-string",
+      "native-command-exec",
+      "native-embedded-secret",
+      "native-format-string",
+      "native-unsafe-memory",
+      "native-embedded-url",
+    ]) {
       assert.ok(cats.has(r), `expected ${r}`);
     }
   } finally {

@@ -75,11 +75,17 @@ export async function writeReport({ name, inspection, map, findings, rebuilt }) 
   lines.push(`## 4. Rebuild`, "");
   if (rebuilt && rebuilt.mode === "llm") {
     const passed = rebuilt.verified.filter((v) => v.passed).length;
-    lines.push(`Reimplemented **${rebuilt.verified.length}** unit(s), test-first — **${passed} passing** — in \`${path.relative(ROOT, rebuilt.outDir)}\`.`, "");
+    lines.push(
+      `Reimplemented **${rebuilt.verified.length}** unit(s), test-first — **${passed} passing** — in \`${path.relative(ROOT, rebuilt.outDir)}\`.`,
+      "",
+    );
     for (const v of rebuilt.verified) lines.push(`- ${v.passed ? "✅" : "⚠️"} \`${v.name}\``);
     lines.push("");
   } else if (rebuilt) {
-    lines.push(`Scaffolded ${rebuilt.files.length} test-first stub(s) in \`${path.relative(ROOT, rebuilt.outDir)}\`. Set \`ANTHROPIC_API_KEY\` for a real reimplementation.`, "");
+    lines.push(
+      `Scaffolded ${rebuilt.files.length} test-first stub(s) in \`${path.relative(ROOT, rebuilt.outDir)}\`. Set \`ANTHROPIC_API_KEY\` for a real reimplementation.`,
+      "",
+    );
   } else {
     lines.push("_Not run. Pass `--rebuild` to generate a clean, tested reimplementation._", "");
   }

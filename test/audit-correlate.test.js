@@ -9,8 +9,24 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("correlate merges the same issue reported by two engines", () => {
   const merged = correlate([
-    { rule: "insecure-random", severity: "low", title: "Insecure randomness", why: "", where: "a.js:10", evidence: "", engine: "builtin" },
-    { rule: "node_insecure_random_generator", severity: "medium", title: "insecure random generator", why: "", where: "a.js:10", evidence: "", engine: "semgrep" },
+    {
+      rule: "insecure-random",
+      severity: "low",
+      title: "Insecure randomness",
+      why: "",
+      where: "a.js:10",
+      evidence: "",
+      engine: "builtin",
+    },
+    {
+      rule: "node_insecure_random_generator",
+      severity: "medium",
+      title: "insecure random generator",
+      why: "",
+      where: "a.js:10",
+      evidence: "",
+      engine: "semgrep",
+    },
   ]);
   assert.equal(merged.length, 1);
   assert.deepEqual(merged[0].engines.sort(), ["builtin", "semgrep"]);
@@ -19,8 +35,24 @@ test("correlate merges the same issue reported by two engines", () => {
 
 test("correlate keeps distinct issues separate", () => {
   const merged = correlate([
-    { rule: "dynamic-eval", severity: "high", title: "eval", why: "", where: "a.js:1", evidence: "", engine: "builtin" },
-    { rule: "weak-hash", severity: "medium", title: "md5", why: "", where: "a.js:2", evidence: "", engine: "builtin" },
+    {
+      rule: "dynamic-eval",
+      severity: "high",
+      title: "eval",
+      why: "",
+      where: "a.js:1",
+      evidence: "",
+      engine: "builtin",
+    },
+    {
+      rule: "weak-hash",
+      severity: "medium",
+      title: "md5",
+      why: "",
+      where: "a.js:2",
+      evidence: "",
+      engine: "builtin",
+    },
   ]);
   assert.equal(merged.length, 2);
 });

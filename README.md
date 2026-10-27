@@ -173,6 +173,16 @@ npm test
 - [x] Make the REBUILD stage generate working, test-verified code
 - [x] `compare` mode — diff two versions (procedures + findings; function-level for binaries)
 
+## Contributing & project docs
+
+- [Contributing guide](CONTRIBUTING.md) — dev setup, the local gate, where things live
+- [Architecture](docs/ARCHITECTURE.md) — the pipeline, adapters, and how to extend it
+- [Security policy](SECURITY.md) — responsible disclosure
+- [Changelog](CHANGELOG.md) · [Code of Conduct](CODE_OF_CONDUCT.md)
+
+Issues and PRs welcome. The repo ships ESLint + Prettier, a `node:test` suite, and CI
+across Node 22/24 — run `npm run lint && npm run format && npm test` before a PR.
+
 ## License
 
 [MIT](LICENSE) © Pratham Shukla

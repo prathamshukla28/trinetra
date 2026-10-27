@@ -91,7 +91,10 @@ function scaffoldStubs(map, outDir) {
       files.push(testFile);
     }
     if (!fs.existsSync(implFile)) {
-      fs.writeFileSync(implFile, `export function ${base}() {\n  // TODO: implement to pass ${base}.test.js\n}\n`);
+      fs.writeFileSync(
+        implFile,
+        `export function ${base}() {\n  // TODO: implement to pass ${base}.test.js\n}\n`,
+      );
       files.push(implFile);
     }
   }

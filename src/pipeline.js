@@ -49,7 +49,9 @@ export async function teardown(target, { rebuild: doRebuild = false } = {}) {
       const passed = rebuilt.verified.filter((v) => v.passed).length;
       console.log(`      rebuilt ${rebuilt.verified.length} unit(s) · ${passed} passing their tests`);
     } else {
-      console.log(`      scaffolded ${rebuilt.files.length} file(s) (set ANTHROPIC_API_KEY for a real rebuild)`);
+      console.log(
+        `      scaffolded ${rebuilt.files.length} file(s) (set ANTHROPIC_API_KEY for a real rebuild)`,
+      );
     }
   } else {
     banner("4/4 REBUILD", "skipped (pass --rebuild to enable)");

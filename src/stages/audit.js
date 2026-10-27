@@ -13,23 +13,101 @@ import { isSemgrepAvailable, runSemgrep } from "../adapters/semgrep.js";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const SOURCE_RULES = [
-  { id: "dynamic-eval", severity: "high", re: /\beval\s*\(|new\s+Function\s*\(/, title: "Dynamic code execution (eval / new Function)", why: "Running strings as code lets attacker-controlled input execute arbitrary logic." },
-  { id: "shell-injection", severity: "high", re: /\bexecSync\s*\(|\bexec\s*\(|\bspawn\s*\(/, title: "Shell / command execution", why: "If any part of the command comes from input, this is command injection." },
-  { id: "hardcoded-secret", severity: "high", re: /(?:api[_-]?key|secret|token|password)\s*[:=]\s*["'][A-Za-z0-9_\-]{8,}["']/i, title: "Hardcoded secret", why: "Credentials in source leak through the repo, logs, and shipped builds." },
-  { id: "weak-hash", severity: "medium", re: /createHash\s*\(\s*["'](md5|sha1)["']/i, title: "Weak hashing algorithm (MD5 / SHA-1)", why: "These are broken for integrity and password use." },
-  { id: "insecure-random", severity: "low", re: /Math\.random\s*\(\)/, title: "Insecure randomness (Math.random)", why: "Not cryptographically secure — unsafe for tokens, IDs, or keys." },
+  {
+    id: "dynamic-eval",
+    severity: "high",
+    re: /\beval\s*\(|new\s+Function\s*\(/,
+    title: "Dynamic code execution (eval / new Function)",
+    why: "Running strings as code lets attacker-controlled input execute arbitrary logic.",
+  },
+  {
+    id: "shell-injection",
+    severity: "high",
+    re: /\bexecSync\s*\(|\bexec\s*\(|\bspawn\s*\(/,
+    title: "Shell / command execution",
+    why: "If any part of the command comes from input, this is command injection.",
+  },
+  {
+    id: "hardcoded-secret",
+    severity: "high",
+    re: /(?:api[_-]?key|secret|token|password)\s*[:=]\s*["'][A-Za-z0-9_-]{8,}["']/i,
+    title: "Hardcoded secret",
+    why: "Credentials in source leak through the repo, logs, and shipped builds.",
+  },
+  {
+    id: "weak-hash",
+    severity: "medium",
+    re: /createHash\s*\(\s*["'](md5|sha1)["']/i,
+    title: "Weak hashing algorithm (MD5 / SHA-1)",
+    why: "These are broken for integrity and password use.",
+  },
+  {
+    id: "insecure-random",
+    severity: "low",
+    re: /Math\.random\s*\(\)/,
+    title: "Insecure randomness (Math.random)",
+    why: "Not cryptographically secure — unsafe for tokens, IDs, or keys.",
+  },
 ];
 
 // Rules for decompiled C pseudocode (Ghidra names externals like `_system`).
 const NATIVE_RULES = [
-  { id: "native-command-exec", severity: "high", re: /\b_?(system|popen|execve?|execl|execvp)\s*\(/, title: "Command execution (system / exec / popen)", why: "Spawning a shell from a binary is command-injection-prone if any input reaches it." },
-  { id: "native-unsafe-string", severity: "high", re: /\b_?(strcpy|strcat|sprintf|gets)\s*\(/, title: "Unsafe C string function", why: "strcpy/strcat/sprintf/gets are unbounded — the classic buffer-overflow sources." },
-  { id: "native-embedded-secret", severity: "high", re: /(?:AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|sk_live_[A-Za-z0-9]{8,}|xox[baprs]-[A-Za-z0-9-]{10,})/, title: "Embedded secret / private key", why: "A credential baked into the binary can be extracted by anyone with the file." },
-  { id: "native-format-string", severity: "medium", re: /\b_?(printf|fprintf|vprintf|syslog)\s*\(\s*[a-z_][A-Za-z0-9_]*\s*[),]/, title: "Possible format-string bug", why: "A non-literal format argument lets input control the format string (%n writes, info leaks)." },
-  { id: "native-unsafe-memory", severity: "low", re: /\b_?(memcpy|memmove|alloca)\s*\(/, title: "Unbounded memory operation", why: "memcpy/memmove/alloca with an attacker-influenced size can overflow." },
-  { id: "native-bounded-string", severity: "low", re: /\b_?(strncpy|strncat)\s*\(/, title: "Bounded string function (verify termination)", why: "strncpy/strncat can leave the destination non-NUL-terminated." },
-  { id: "native-embedded-url", severity: "low", re: /https?:\/\/[^\s")]+/, title: "Hardcoded URL / endpoint", why: "Baked-in endpoints reveal infrastructure and can't be rotated without a rebuild." },
-  { id: "native-insecure-random", severity: "low", re: /\b_?(rand|srandom|random)\s*\(/, title: "Weak randomness (C rand)", why: "C rand() is not cryptographically secure." },
+  {
+    id: "native-command-exec",
+    severity: "high",
+    re: /\b_?(system|popen|execve?|execl|execvp)\s*\(/,
+    title: "Command execution (system / exec / popen)",
+    why: "Spawning a shell from a binary is command-injection-prone if any input reaches it.",
+  },
+  {
+    id: "native-unsafe-string",
+    severity: "high",
+    re: /\b_?(strcpy|strcat|sprintf|gets)\s*\(/,
+    title: "Unsafe C string function",
+    why: "strcpy/strcat/sprintf/gets are unbounded — the classic buffer-overflow sources.",
+  },
+  {
+    id: "native-embedded-secret",
+    severity: "high",
+    re: /(?:AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|sk_live_[A-Za-z0-9]{8,}|xox[baprs]-[A-Za-z0-9-]{10,})/,
+    title: "Embedded secret / private key",
+    why: "A credential baked into the binary can be extracted by anyone with the file.",
+  },
+  {
+    id: "native-format-string",
+    severity: "medium",
+    re: /\b_?(printf|fprintf|vprintf|syslog)\s*\(\s*[a-z_][A-Za-z0-9_]*\s*[),]/,
+    title: "Possible format-string bug",
+    why: "A non-literal format argument lets input control the format string (%n writes, info leaks).",
+  },
+  {
+    id: "native-unsafe-memory",
+    severity: "low",
+    re: /\b_?(memcpy|memmove|alloca)\s*\(/,
+    title: "Unbounded memory operation",
+    why: "memcpy/memmove/alloca with an attacker-influenced size can overflow.",
+  },
+  {
+    id: "native-bounded-string",
+    severity: "low",
+    re: /\b_?(strncpy|strncat)\s*\(/,
+    title: "Bounded string function (verify termination)",
+    why: "strncpy/strncat can leave the destination non-NUL-terminated.",
+  },
+  {
+    id: "native-embedded-url",
+    severity: "low",
+    re: /https?:\/\/[^\s")]+/,
+    title: "Hardcoded URL / endpoint",
+    why: "Baked-in endpoints reveal infrastructure and can't be rotated without a rebuild.",
+  },
+  {
+    id: "native-insecure-random",
+    severity: "low",
+    re: /\b_?(rand|srandom|random)\s*\(/,
+    title: "Weak randomness (C rand)",
+    why: "C rand() is not cryptographically secure.",
+  },
 ];
 
 // Map a finding to a canonical concept so the same issue from different engines
@@ -43,7 +121,8 @@ export function canonical(f) {
   if (/exec|shell|command|child_process|system|popen/.test(s)) return "command-exec";
   if (/format.?string|printf/.test(s)) return "format-string";
   if (/memcpy|memmove|alloca|unbounded memory/.test(s)) return "unsafe-memory";
-  if (/strcpy|strcat|sprintf|gets|strncpy|strncat|overflow|buffer|string function/.test(s)) return "unsafe-string";
+  if (/strcpy|strcat|sprintf|gets|strncpy|strncat|overflow|buffer|string function/.test(s))
+    return "unsafe-string";
   if (/url|endpoint/.test(s)) return "hardcoded-url";
   return f.rule;
 }
@@ -53,7 +132,15 @@ function scan(text, file, rules, engine) {
   text.split("\n").forEach((line, i) => {
     for (const rule of rules) {
       if (rule.re.test(line)) {
-        out.push({ rule: rule.id, severity: rule.severity, title: rule.title, why: rule.why, where: `${file}:${i + 1}`, evidence: line.trim().slice(0, 120), engine });
+        out.push({
+          rule: rule.id,
+          severity: rule.severity,
+          title: rule.title,
+          why: rule.why,
+          where: `${file}:${i + 1}`,
+          evidence: line.trim().slice(0, 120),
+          engine,
+        });
       }
     }
   });

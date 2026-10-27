@@ -15,13 +15,17 @@ const SEV_META = {
 };
 
 const esc = (s) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  String(s ?? "").replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+  );
 
 function countBySeverity(findings) {
-  return findings.reduce(
-    (acc, f) => ((acc[f.severity] = (acc[f.severity] || 0) + 1), acc),
-    { high: 0, medium: 0, low: 0 },
-  );
+  return findings.reduce((acc, f) => ((acc[f.severity] = (acc[f.severity] || 0) + 1), acc), {
+    high: 0,
+    medium: 0,
+    low: 0,
+  });
 }
 
 export function writeHtmlReport({ name, inspection, map, findings, rebuilt }) {
@@ -68,7 +72,10 @@ export function writeHtmlReport({ name, inspection, map, findings, rebuilt }) {
       ${code ? `<h3>Sample decompiled function — <code>${esc(inspection.sampleName)}</code></h3><pre class="code"><code>${esc(code)}</code></pre>` : ""}`;
   } else {
     whatItDoes = `<ul class="behaviors">${map.behaviors
-      .map((b) => `<li><code>${esc(b.name)}</code> — ${esc(b.guess)} <span class="muted">${esc(b.where)}</span></li>`)
+      .map(
+        (b) =>
+          `<li><code>${esc(b.name)}</code> — ${esc(b.guess)} <span class="muted">${esc(b.where)}</span></li>`,
+      )
       .join("")}</ul>`;
   }
 

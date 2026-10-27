@@ -36,9 +36,7 @@ export async function reimplement({ name, language, source, priorError }) {
     `Target language: ${language}. The implementation file is imported by the test as "./${name}.js" ` +
     `and must export its functions. Tests use node:test and node:assert.`;
 
-  const retry = priorError
-    ? `\n\nThe previous attempt failed its test with:\n${priorError}\nFix it.`
-    : "";
+  const retry = priorError ? `\n\nThe previous attempt failed its test with:\n${priorError}\nFix it.` : "";
 
   const response = await client.messages.create({
     model: MODEL,

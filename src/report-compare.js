@@ -42,7 +42,10 @@ function html(d) {
       return `<tr><td>${esc(r.category)}</td><td>${r.a}</td><td>${r.b}</td><td class="${cls}">${arrow}</td></tr>`;
     })
     .join("");
-  const ul = (items) => (items.length ? `<ul>${items.map((n) => `<li><code>${esc(n)}</code></li>`).join("")}</ul>` : `<p class="muted">none</p>`);
+  const ul = (items) =>
+    items.length
+      ? `<ul>${items.map((n) => `<li><code>${esc(n)}</code></li>`).join("")}</ul>`
+      : `<p class="muted">none</p>`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Trinetra compare · ${esc(d.aName)} → ${esc(d.bName)}</title>

@@ -140,7 +140,9 @@ export async function inspect(target) {
       console.log(`      (REA unavailable for this target: ${err.message}; using built-in inspector)`);
     }
   } else if (isReaAvailable()) {
-    console.log(`      (large/unpackaged source tree — using fast inspector; REA is for packaged apps/binaries)`);
+    console.log(
+      `      (large/unpackaged source tree — using fast inspector; REA is for packaged apps/binaries)`,
+    );
   }
 
   // Built-in source inspector (fast). Security still runs via Semgrep in AUDIT.
