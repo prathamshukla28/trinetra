@@ -8,6 +8,7 @@ import { understand } from "./stages/understand.js";
 import { audit } from "./stages/audit.js";
 import { rebuild } from "./stages/rebuild.js";
 import { writeReport } from "./report.js";
+import { writeHtmlReport } from "./report-html.js";
 import { Memory } from "./memory.js";
 
 function banner(step, label) {
@@ -48,6 +49,8 @@ export async function teardown(target, { rebuild: doRebuild = false } = {}) {
   }
 
   const reportPath = await writeReport({ name, inspection, map, findings, rebuilt });
-  console.log(`\n\u001b[32m✔ done\u001b[0m · report → ${reportPath}\n`);
-  return { reportPath, findings };
+  const htmlPath = writeHtmlReport({ name, inspection, map, findings, rebuilt });
+  console.log(`\n\u001b[32m✔ done\u001b[0m · report → ${reportPath}`);
+  console.log(`          html   → ${htmlPath}\n`);
+  return { reportPath, htmlPath, findings };
 }

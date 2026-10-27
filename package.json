@@ -1,16 +1,45 @@
 {
   "name": "trinetra",
   "version": "0.1.0",
-  "description": "Tear it down, then forge it back — reverse-engineer, audit, and rebuild any software.",
+  "description": "The third eye for software — reverse-engineer, audit, and rebuild any app or binary with agents.",
   "type": "module",
   "bin": {
     "trinetra": "src/cli.js"
   },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
+    "start": "node src/cli.js",
     "demo": "node src/cli.js teardown targets/sample-cli",
-    "start": "node src/cli.js"
+    "test": "node --test"
   },
+  "keywords": [
+    "reverse-engineering",
+    "security",
+    "static-analysis",
+    "decompiler",
+    "ghidra",
+    "semgrep",
+    "binary-analysis",
+    "agents",
+    "cli"
+  ],
+  "author": "Pratham Shukla",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prathamshukla28/trinetra.git"
+  },
+  "bugs": {
+    "url": "https://github.com/prathamshukla28/trinetra/issues"
+  },
+  "homepage": "https://github.com/prathamshukla28/trinetra#readme",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "rea-agents": "^6.8.0"
   }
