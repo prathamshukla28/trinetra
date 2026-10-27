@@ -10,7 +10,9 @@
     "access": "public"
   },
   "files": [
-    "src",
+    "src/*.js",
+    "src/stages",
+    "src/adapters",
     "README.md",
     "LICENSE"
   ],
@@ -18,8 +20,8 @@
     "start": "node src/cli.js",
     "demo": "node src/cli.js teardown targets/sample-cli",
     "demo:asar": "asar pack examples/demo-electron-app targets/demo-app.asar && node src/cli.js teardown targets/demo-app.asar",
-    "test": "node --test",
-    "prepublishOnly": "node --test"
+    "test": "node --test test/*.test.js",
+    "prepublishOnly": "node --test test/*.test.js"
   },
   "keywords": [
     "reverse-engineering",
