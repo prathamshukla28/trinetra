@@ -66,7 +66,7 @@ export async function writeReport({ name, inspection, map, findings, rebuilt }) 
     for (const f of findings) {
       lines.push(`### ${SEV[f.severity]} — ${f.title}`);
       lines.push(`- **Where:** \`${f.where}\``);
-      lines.push(`- **Found by:** ${f.engine}`);
+      lines.push(`- **Found by:** ${f.engines.join(" + ")}`);
       lines.push(`- **Why it matters:** ${f.why}`);
       lines.push(`- **Evidence:** \`${f.evidence}\``, "");
     }

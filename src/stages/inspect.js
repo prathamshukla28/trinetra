@@ -6,7 +6,33 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { isReaAvailable, reaInspectJs, reaInspectNative } from "../adapters/rea.js";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+// Ghidra can't import a universal (fat) Mach-O — it needs one architecture.
+// If the target is fat, thin it to the host-preferred slice automatically.
+function maybeThinFatMacho(target) {
+  let archs;
+  try {
+    archs = execFileSync("lipo", ["-archs", target], { stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim()
+      .split(/\s+/);
+  } catch {
+    return { path: target, thinned: false }; // not fat, or lipo unavailable
+  }
+  if (archs.length <= 1) return { path: target, thinned: false };
+
+  const arch = ["arm64e", "arm64", "x86_64"].find((a) => archs.includes(a)) || archs[0];
+  const dir = path.join(ROOT, "reports", ".thin");
+  fs.mkdirSync(dir, { recursive: true });
+  const out = path.join(dir, `${path.basename(target)}-${arch}`);
+  execFileSync("lipo", ["-thin", arch, target, "-output", out]);
+  return { path: out, thinned: true, arch };
+}
 
 const SOURCE_EXT = new Set([".js", ".mjs", ".cjs", ".ts", ".jsx", ".tsx"]);
 const NATIVE_EXT = new Set([".exe", ".dll", ".so", ".dylib", ".bin", ".o", ".elf", ".apk", ".app"]);
@@ -56,7 +82,9 @@ export async function inspect(target) {
     if (!isReaAvailable()) {
       throw new Error("Native targets need REA installed (`npm install rea-agents`).");
     }
-    const rea = await reaInspectNative(target);
+    const thin = maybeThinFatMacho(target);
+    if (thin.thinned) console.log(`      (fat binary — thinned to ${thin.arch} slice for Ghidra)`);
+    const rea = await reaInspectNative(thin.path);
     return {
       engine: "rea-native",
       files: [target],

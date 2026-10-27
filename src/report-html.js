@@ -46,7 +46,7 @@ export function writeHtmlReport({ name, inspection, map, findings, rebuilt }) {
   <div class="finding-head">
     <span class="badge" style="background:${m.color}">${m.label}</span>
     <span class="finding-title">${esc(f.title)}</span>
-    <span class="engine">${esc(f.engine)}</span>
+    <span class="engine">${esc(f.engines.join(" + "))}</span>
   </div>
   <div class="where">${esc(f.where)}</div>
   <p class="why">${esc(f.why)}</p>

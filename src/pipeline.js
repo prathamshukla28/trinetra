@@ -35,7 +35,7 @@ export async function teardown(target, { rebuild: doRebuild = false } = {}) {
   // 3. AUDIT  (ingredient: security skills + mattpocock guardrails)
   banner("3/4 AUDIT", "hunting for weaknesses");
   const findings = await audit(inspection, map, target);
-  const engines = [...new Set(findings.map((f) => f.engine))].join(" + ") || "none";
+  const engines = [...new Set(findings.flatMap((f) => f.engines))].join(" + ") || "none";
   console.log(`      ${findings.length} finding(s) via ${engines}`);
 
   // 4. REBUILD  (ingredient: superpowers — test-first discipline) — optional
