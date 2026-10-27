@@ -1,6 +1,6 @@
 // Adapter for the REA reverse-engineering engine (morluto/rea).
 //
-// REFORGE talks to REA only through this file. When `rea-agents` is installed in
+// Trinetra talks to REA only through this file. When `rea-agents` is installed in
 // the project, the INSPECT stage reconstructs the target with REA's semantic
 // graph instead of our built-in regex extractor. Everything downstream
 // (understand / audit / rebuild) is unchanged.
@@ -19,7 +19,7 @@ export function isReaAvailable() {
 
 // Load optional config (Ghidra install dir, JDK bin) so native analysis works.
 function loadConfig() {
-  const file = path.join(ROOT, "reforge.config.json");
+  const file = path.join(ROOT, "trinetra.config.json");
   try {
     return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch {
@@ -57,32 +57,45 @@ function runReaCommand(args) {
 // Inspect a native program/binary via REA (requires an analysis engine such as
 // Ghidra). Returns the same unit shape; raw source is empty for binaries.
 export async function reaInspectNative(target) {
-  const rec = runReaCommand(["inspect", target]);
-  const nr = rec.normalized_result ?? {};
-  // REA's native overview shape varies by provider; pull functions when present.
-  const fns = nr.functions ?? nr.symbols ?? nr.graph?.nodes ?? [];
-  const units = fns
-    .filter((f) => f && (f.name || f.symbol || f.label))
-    .map((f) => ({
-      name: f.name || f.symbol || f.label,
-      file: target,
-      line: 0,
-      source: f.address ? `@${f.address}` : "",
-    }));
+  // decompile-all runs Ghidra once and yields BOTH the procedure list and the
+  // pseudocode of every function, written to a directory with an index.
+  const name = path.basename(target);
+  const parent = path.join(ROOT, "reports", ".rea-decomp");
+  const outDir = path.join(parent, name);
+  // decompile-all creates the output dir itself and refuses a pre-existing one,
+  // so we ensure only the parent exists and clear any stale run.
+  fs.mkdirSync(parent, { recursive: true });
+  fs.rmSync(outDir, { recursive: true, force: true });
+  runReaCommand(["decompile-all", target, "--output", outDir]);
+
+  const index = JSON.parse(fs.readFileSync(path.join(outDir, "decompile-index.json"), "utf8"));
+  const fns = index.functions ?? [];
+  const local = fns.filter((f) => f.status === "written" && f.relative_path);
+  const units = local.map((f) => ({ name: f.name, file: target, line: 0, source: f.address }));
+
+  // Pick a representative function (prefer the entry point) to show in the report.
+  const sample = local.find((f) => f.name === "entry") || local[0];
+  let samplePseudo = "";
+  if (sample) {
+    try {
+      samplePseudo = fs.readFileSync(path.join(outDir, sample.relative_path), "utf8");
+    } catch {
+      /* ignore */
+    }
+  }
+
   return {
     units,
-    provenance: {
-      sha256: rec.subject?.digest?.sha256 ?? nr.root_artifact_sha256,
-      provider: rec.provider?.name,
-      evidenceId: rec.evidence_id,
-    },
-    statistics: nr.statistics ?? {},
-    reaFindings: 0,
+    provenance: { sha256: index.target_sha256, provider: index.provider?.name },
+    statistics: { procedures: local.length, external: fns.length - local.length },
+    overview: samplePseudo,
+    sampleName: sample?.name,
+    decompDir: path.relative(ROOT, outDir),
   };
 }
 
 // Reconstruct a local JavaScript/Electron application and map REA's semantic
-// graph onto REFORGE's unit shape.
+// graph onto Trinetra's unit shape.
 export async function reaInspectJs(target) {
   const rec = runReaCommand(["analyze-javascript-application", target, "--detail", "complete"]);
   const nr = rec.normalized_result ?? {};

@@ -1,4 +1,4 @@
-// The conductor. Runs the four REFORGE stages in order and ties them together
+// The conductor. Runs the four Trinetra stages in order and ties them together
 // with the shared memory store. Each stage maps to one of the project's
 // ingredients (see README).
 
@@ -16,7 +16,7 @@ function banner(step, label) {
 
 export async function teardown(target, { rebuild: doRebuild = false } = {}) {
   const name = path.basename(target);
-  console.log(`\n\u001b[1mREFORGE\u001b[0m · tearing down "${name}"`);
+  console.log(`\n\u001b[1mTrinetra\u001b[0m · tearing down "${name}"`);
 
   const memory = new Memory(name);
 

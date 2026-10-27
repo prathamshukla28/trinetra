@@ -1,4 +1,4 @@
-// Adapter for Semgrep — REFORGE's heavyweight security scanner.
+// Adapter for Semgrep — Trinetra's heavyweight security scanner.
 //
 // Runs alongside the built-in ruleset. The built-in rules are fast and always
 // available; Semgrep brings hundreds of community rules and real dataflow.
@@ -55,7 +55,7 @@ export function runSemgrep(target) {
   const args = [];
   for (const c of CONFIGS) args.push("--config", c);
   for (const e of EXCLUDES) args.push("--exclude", e);
-  // --no-git-ignore: REFORGE targets often live in git-ignored folders.
+  // --no-git-ignore: Trinetra targets often live in git-ignored folders.
   args.push("--json", "--quiet", "--no-git-ignore", "--metrics=off", target);
 
   let out;

@@ -1,8 +1,8 @@
-# REFORGE
+# Trinetra
 
 **Tear it down, then forge it back.**
 
-Point REFORGE at any app or binary. It takes the target apart, writes down
+Point Trinetra at any app or binary. It takes the target apart, writes down
 everything it learns, flags the security weaknesses, and (optionally) rebuilds a
 clean, tested version you own.
 
@@ -11,7 +11,7 @@ One run → two outputs:
 - **A security report** — how it works + where it's weak.
 - **A clean reimplementation** — tested code you own.
 
-> ⚠️ **Authorized use only.** REFORGE is for software you own, open-source
+> ⚠️ **Authorized use only.** Trinetra is for software you own, open-source
 > projects, authorized pentest engagements, and practice/CTF targets. Do not use
 > it on software you are not permitted to analyze.
 
@@ -23,14 +23,14 @@ One run → two outputs:
 > disciplined, mistake-proofed agent skills.
 
 Nobody has wired a *reverse-engineering* engine into a *disciplined builder*. That
-is the gap REFORGE fills.
+is the gap Trinetra fills.
 
 ## How it's built (the ingredients)
 
-REFORGE is a thin **conductor** on top of six existing tools. It does not fork or
+Trinetra is a thin **conductor** on top of six existing tools. It does not fork or
 merge them — it orchestrates them.
 
-| Ingredient | Role in REFORGE |
+| Ingredient | Role in Trinetra |
 | --- | --- |
 | [`morluto/rea`](https://github.com/morluto/rea) | 🔎 **Eyes** — takes the target apart (behavior → binary) |
 | [`affaan-m/everything-claude-code`](https://github.com/affaan-m/everything-claude-code) | 🧠 **Memory** + 🔒 **safety cage** |
@@ -59,7 +59,7 @@ merge them — it orchestrates them.
 ## Layout
 
 ```
-reforge/
+trinetra/
   docs/      design notes & architecture
   src/       the conductor + any rebuilt code
   targets/   things we analyze (git-ignored by default)

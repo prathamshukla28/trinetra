@@ -1,5 +1,5 @@
 // A tiny persistent memory store — one JSON file per analyzed target.
-// Stands in for the memory layer from everything-claude-code: REFORGE remembers
+// Stands in for the memory layer from everything-claude-code: Trinetra remembers
 // what it learned about each target across runs.
 
 import fs from "node:fs";

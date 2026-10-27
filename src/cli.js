@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// REFORGE — command-line entry point.
+// Trinetra — command-line entry point.
 // Usage:
-//   reforge teardown <target>     tear a target apart, audit it, write a report
-//   reforge teardown <target> --rebuild   also attempt a clean reimplementation
+//   trinetra teardown <target>     tear a target apart, audit it, write a report
+//   trinetra teardown <target> --rebuild   also attempt a clean reimplementation
 
 import { teardown } from "./pipeline.js";
 
@@ -16,10 +16,10 @@ async function main() {
   const { command, target, rebuild } = parseArgs(process.argv.slice(2));
 
   if (command !== "teardown" || !target) {
-    console.log("REFORGE — tear it down, then forge it back.\n");
-    console.log("  reforge teardown <target> [--rebuild]\n");
+    console.log("Trinetra — tear it down, then forge it back.\n");
+    console.log("  trinetra teardown <target> [--rebuild]\n");
     console.log("Example:");
-    console.log("  reforge teardown targets/sample-cli");
+    console.log("  trinetra teardown targets/sample-cli");
     process.exit(command ? 1 : 0);
   }
 
@@ -27,6 +27,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("\n✖ REFORGE failed:", err.message);
+  console.error("\n✖ Trinetra failed:", err.message);
   process.exit(1);
 });

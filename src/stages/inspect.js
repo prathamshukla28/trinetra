@@ -64,6 +64,9 @@ export async function inspect(target) {
       raw: [], // audit's source rules don't apply to binaries
       provenance: rea.provenance,
       statistics: rea.statistics,
+      overview: rea.overview,
+      sampleName: rea.sampleName,
+      decompDir: rea.decompDir,
     };
   }
 

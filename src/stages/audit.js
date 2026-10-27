@@ -1,4 +1,4 @@
-// Stage 3 — AUDIT.  Scan the target for weaknesses. This is REFORGE's
+// Stage 3 — AUDIT.  Scan the target for weaknesses. This is Trinetra's
 // security-research output. Two engines run and their findings are merged:
 //   1. built-in  — fast, offline, high-signal regex rules (always on)
 //   2. semgrep   — hundreds of community rules + dataflow (when installed)
@@ -68,7 +68,8 @@ function runBuiltin(inspection) {
 export async function audit(inspection, _map, target) {
   let findings = runBuiltin(inspection);
 
-  if (isSemgrepAvailable() && target) {
+  // Semgrep is a source scanner — only run it when we have source (not binaries).
+  if (isSemgrepAvailable() && target && inspection.raw?.length) {
     try {
       findings = findings.concat(runSemgrep(target));
     } catch (err) {

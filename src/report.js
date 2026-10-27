@@ -14,12 +14,21 @@ export async function writeReport({ name, inspection, map, findings, rebuilt }) 
   const out = path.join(REPORT_DIR, `${name}.md`);
 
   const lines = [];
-  lines.push(`# REFORGE teardown — ${name}`, "");
+  lines.push(`# Trinetra teardown — ${name}`, "");
   lines.push(`_Generated ${new Date().toISOString()} · engine: ${inspection.engine}_`, "");
 
+  const isNative = inspection.engine === "rea-native";
+
   lines.push(`## 1. What it is`, "");
-  lines.push(`- Files inspected: **${inspection.files.length}**`);
-  lines.push(`- Units found: **${inspection.units.length}**`);
+  if (isNative) {
+    const s = inspection.statistics ?? {};
+    lines.push(`- Native binary analyzed + decompiled with Ghidra via REA.`);
+    lines.push(`- Procedures with bodies: **${s.procedures}** · external references: **${s.external}**`);
+    if (inspection.decompDir) lines.push(`- Full pseudocode written to: \`${inspection.decompDir}/\``);
+  } else {
+    lines.push(`- Files inspected: **${inspection.files.length}**`);
+    lines.push(`- Units found: **${inspection.units.length}**`);
+  }
   if (inspection.provenance?.sha256) {
     lines.push(`- Target fingerprint (SHA-256): \`${inspection.provenance.sha256}\``);
     lines.push(`- Analyzed by: ${inspection.provenance.provider ?? "REA"}`);
@@ -27,9 +36,28 @@ export async function writeReport({ name, inspection, map, findings, rebuilt }) 
   lines.push("");
 
   lines.push(`## 2. What it does`, "");
-  for (const b of map.behaviors) lines.push(`- \`${b.name}\` — ${b.guess} _(${b.where})_`);
-  if (map.behaviors.length === 0) lines.push("_No named units extracted._");
-  lines.push("");
+  if (isNative) {
+    if (map.behaviors.length) {
+      lines.push("Recovered procedures:", "");
+      for (const b of map.behaviors) lines.push(`- \`${b.name}\``);
+      lines.push("");
+    }
+    // Strip REA's provenance comment header; show the decompiled code itself.
+    const code = (inspection.overview || "")
+      .split("\n")
+      .filter((l) => !l.startsWith("//"))
+      .join("\n")
+      .trim();
+    if (code) {
+      lines.push(`Sample decompiled function — \`${inspection.sampleName}\`:`, "", "```c");
+      lines.push(...code.split("\n").slice(0, 45));
+      lines.push("```", "");
+    }
+  } else {
+    for (const b of map.behaviors) lines.push(`- \`${b.name}\` — ${b.guess} _(${b.where})_`);
+    if (map.behaviors.length === 0) lines.push("_No named units extracted._");
+    lines.push("");
+  }
 
   lines.push(`## 3. Security findings`, "");
   if (findings.length === 0) {

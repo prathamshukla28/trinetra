@@ -1,10 +1,10 @@
 {
-  "name": "reforge",
+  "name": "trinetra",
   "version": "0.1.0",
   "description": "Tear it down, then forge it back — reverse-engineer, audit, and rebuild any software.",
   "type": "module",
   "bin": {
-    "reforge": "src/cli.js"
+    "trinetra": "src/cli.js"
   },
   "scripts": {
     "demo": "node src/cli.js teardown targets/sample-cli",
