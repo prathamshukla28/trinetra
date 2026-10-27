@@ -89,7 +89,7 @@ them, it doesn't reinvent them.
 | **Inspect** | [REA](https://github.com/morluto/rea) — JS/Electron reconstruction + native decompilation via [Ghidra](https://github.com/NationalSecurityAgency/ghidra) |
 | **Understand** | A persistent memory map per target |
 | **Audit** | Built-in high-signal rules **+** [Semgrep](https://semgrep.dev) community packs |
-| **Rebuild** | Test-first scaffolding (TDD discipline) |
+| **Rebuild** | Claude (`claude-opus-5-5`) regenerates each unit test-first, then **runs the test to verify it passes** (TDD discipline) |
 
 Source trees use a fast inspector + Semgrep; packaged apps and binaries route to
 REA/Ghidra automatically.
@@ -106,6 +106,7 @@ npm install          # pulls in REA (rea-agents)
 
 - Node.js ≥ 22
 - `semgrep` on PATH (optional, for the deep audit): `pipx install semgrep`
+- `ANTHROPIC_API_KEY` (optional, for `--rebuild`): generates real tested code instead of stubs
 - For **native binaries**: a JDK 21+ and Ghidra 12.1.x. Point Trinetra at them in
   `trinetra.config.json`:
 
@@ -154,7 +155,7 @@ npm test
 - [ ] Auto-thin universal (fat) Mach-O binaries
 - [ ] Native security rules (dangerous imports, embedded secrets)
 - [ ] Correlate findings across engines
-- [ ] Make the REBUILD stage generate working code, not just scaffolding
+- [x] Make the REBUILD stage generate working, test-verified code
 - [ ] `compare` mode — diff two versions down to the binary
 
 ## License

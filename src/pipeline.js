@@ -42,8 +42,13 @@ export async function teardown(target, { rebuild: doRebuild = false } = {}) {
   let rebuilt = null;
   if (doRebuild) {
     banner("4/4 REBUILD", "forging a clean, tested version");
-    rebuilt = await rebuild(map, memory);
-    console.log(`      wrote ${rebuilt.files.length} file(s) to ${rebuilt.outDir}`);
+    rebuilt = await rebuild({ name, map, inspection });
+    if (rebuilt.mode === "llm") {
+      const passed = rebuilt.verified.filter((v) => v.passed).length;
+      console.log(`      rebuilt ${rebuilt.verified.length} unit(s) · ${passed} passing their tests`);
+    } else {
+      console.log(`      scaffolded ${rebuilt.files.length} file(s) (set ANTHROPIC_API_KEY for a real rebuild)`);
+    }
   } else {
     banner("4/4 REBUILD", "skipped (pass --rebuild to enable)");
   }
