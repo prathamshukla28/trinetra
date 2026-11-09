@@ -2,14 +2,21 @@
 targets/*
 !targets/.gitkeep
 
-# generated reports (keep the folder, not the contents)
-reports/*
-!reports/.gitkeep
+# Trinetra output (default --out dir) and legacy in-repo output locations
+trinetra-out/
+reports/
+src/rebuilt/
+
+# personal engine paths — copy trinetra.config.example.json instead
+trinetra.config.json
+
+# private documents
+Trinetra-Project-and-Interview.pdf
+docs/PROJECT_AND_INTERVIEW.md
 
 node_modules/
+coverage/
 *.log
+*.tgz
 .DS_Store
 .env
-
-# generated rebuild output
-src/rebuilt/

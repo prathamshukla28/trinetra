@@ -1,0 +1,143 @@
+{
+  "evidence_id": "ev_92e72b61832d6dea5e3aad8c934d7dee13b5c7aead09d9e48039b72a2bc5eec4",
+  "subject": {
+    "name": "sample-cli",
+    "digest": {
+      "sha256": "7c7213dbbe122d32f4bef4e873c4b2599d31c1567a3f0ba1520b3b0d86dbde08"
+    },
+    "local_path": "<target>",
+    "format": "directory",
+    "architecture": null
+  },
+  "provider": {
+    "id": "rea-javascript-application",
+    "name": "REA JavaScript application analyzer",
+    "version": "1"
+  },
+  "predicate_type": "rea.javascript-application-analysis",
+  "normalized_result": {
+    "input_path": "<target>",
+    "format": "directory",
+    "root_artifact_sha256": "7c7213dbbe122d32f4bef4e873c4b2599d31c1567a3f0ba1520b3b0d86dbde08",
+    "statistics": {
+      "relevant_files": 1,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 768,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 1,
+      "skipped_javascript_files": 0,
+      "visited_ast_nodes": 96,
+      "findings": 8,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "semantic_graph": {
+      "nodes": [
+        {
+          "kind": "function",
+          "identity": {
+            "artifact_sha256": "e7f3bcf336ef35dd237d76875e59900d0a77329c32a610151ea8e088be8590dd",
+            "module_path": "index.js",
+            "source_range": {
+              "start": {
+                "line": 13,
+                "column": 0
+              },
+              "end": {
+                "line": 15,
+                "column": 1
+              }
+            },
+            "role_key": "callable:callable:function:441:529"
+          },
+          "label": "runUserCommand",
+          "properties": {
+            "name": "runUserCommand"
+          },
+          "node_id": "jsrg_node_8a5fed90b6837a47c8d2500dc2055fe1267b56f8cd659186590598dbed6ff708"
+        },
+        {
+          "kind": "function",
+          "identity": {
+            "artifact_sha256": "e7f3bcf336ef35dd237d76875e59900d0a77329c32a610151ea8e088be8590dd",
+            "module_path": "index.js",
+            "source_range": {
+              "start": {
+                "line": 21,
+                "column": 0
+              },
+              "end": {
+                "line": 23,
+                "column": 1
+              }
+            },
+            "role_key": "callable:callable:function:633:703"
+          },
+          "label": "evalExpression",
+          "properties": {
+            "name": "evalExpression"
+          },
+          "node_id": "jsrg_node_b3077d6906fc0868eab18ab1f687c91f69c84b18229b0963a0e3d43107ec8587"
+        },
+        {
+          "kind": "module",
+          "identity": {
+            "artifact_sha256": "e7f3bcf336ef35dd237d76875e59900d0a77329c32a610151ea8e088be8590dd",
+            "module_path": "index.js",
+            "source_range": null,
+            "role_key": "module"
+          },
+          "label": "index.js",
+          "properties": {},
+          "node_id": "jsrg_node_c0a82dcb7da654903cf39c56ee822efae2f5d290d26b78eb44b687a841106e17"
+        },
+        {
+          "kind": "function",
+          "identity": {
+            "artifact_sha256": "e7f3bcf336ef35dd237d76875e59900d0a77329c32a610151ea8e088be8590dd",
+            "module_path": "index.js",
+            "source_range": {
+              "start": {
+                "line": 17,
+                "column": 0
+              },
+              "end": {
+                "line": 19,
+                "column": 1
+              }
+            },
+            "role_key": "callable:callable:function:531:631"
+          },
+          "label": "makeToken",
+          "properties": {
+            "name": "makeToken"
+          },
+          "node_id": "jsrg_node_de74f70076c8e009210e7c4a3aff165632f072f19198eae808aa67acb1a880b4"
+        },
+        {
+          "kind": "function",
+          "identity": {
+            "artifact_sha256": "e7f3bcf336ef35dd237d76875e59900d0a77329c32a610151ea8e088be8590dd",
+            "module_path": "index.js",
+            "source_range": {
+              "start": {
+                "line": 8,
+                "column": 0
+              },
+              "end": {
+                "line": 11,
+                "column": 1
+              }
+            },
+            "role_key": "callable:callable:function:281:439"
+          },
+          "label": "login",
+          "properties": {
+            "name": "login"
+          },
+          "node_id": "jsrg_node_fec0ca29b488c3569a8018f37352fbc3472390c4311c915deae21cbaff2891e4"
+        }
+      ]
+    }
+  }
+}

@@ -1,14 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { audit } from "../src/stages/audit.js";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-
 test("richer native rules flag the main binary weakness classes", async () => {
-  const dir = path.join(ROOT, "reports", ".test-native-rules");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "trinetra-decomp-"));
   const fnDir = path.join(dir, "functions");
   fs.mkdirSync(fnDir, { recursive: true });
   fs.writeFileSync(
@@ -26,7 +24,7 @@ test("richer native rules flag the main binary weakness classes", async () => {
     ].join("\n"),
   );
   try {
-    const findings = await audit({ decompDir: "reports/.test-native-rules" }, {});
+    const findings = await audit({ decompDir: dir }, {});
     const cats = new Set(findings.map((f) => f.rule));
     for (const r of [
       "native-unsafe-string",

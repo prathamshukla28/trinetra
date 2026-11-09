@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "target_sha256": "<filled-by-fake-rea>",
+  "provider": {
+    "id": "ghidra",
+    "name": "Ghidra",
+    "version": "12.1.4"
+  },
+  "analysis_profile_digest": "066f9d6c56d7a436e2061afaa7f68aa9085572cd83e3172cf52ecd30a6101bae",
+  "layout": "address",
+  "layout_status": "address",
+  "limitations": [],
+  "functions": [
+    {
+      "address": "0x1000004f0",
+      "name": "entry",
+      "status": "written",
+      "relative_path": "functions/0x1000004f0.c",
+      "sha256": "93f5ed29d11e79f2266e34e1a535cfa62ebfec41b742c3d2c0e6edb27d49b0b5",
+      "body": {
+        "available": true,
+        "ranges": [
+          {
+            "start": "0x1000004f0",
+            "end": "0x1000007c3"
+          }
+        ],
+        "non_contiguous": false
+      },
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results."
+      ]
+    },
+    {
+      "address": "0x1000007c4",
+      "name": "FUN_1000007c4",
+      "status": "written",
+      "relative_path": "functions/0x1000007c4.c",
+      "sha256": "32e00e2bfb17c29f3c0a135b62e90a7bfdc528edf2c8a8b653364194c32b6c87",
+      "body": {
+        "available": true,
+        "ranges": [
+          {
+            "start": "0x1000007c4",
+            "end": "0x1000007f7"
+          }
+        ],
+        "non_contiguous": false
+      },
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results."
+      ]
+    },
+    {
+      "address": "0x1000007f8",
+      "name": "FUN_1000007f8",
+      "status": "written",
+      "relative_path": "functions/0x1000007f8.c",
+      "sha256": "a5294adebf348f4c18873cf9a873a7652dfb9179d252c9a15655bba205d77ea0",
+      "body": {
+        "available": true,
+        "ranges": [
+          {
+            "start": "0x1000007f8",
+            "end": "0x100000813"
+          }
+        ],
+        "non_contiguous": false
+      },
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results."
+      ]
+    },
+    {
+      "address": "EXTERNAL:0x1",
+      "name": "/usr/lib/libSystem.B.dylib::_err",
+      "status": "external",
+      "body": {
+        "available": true,
+        "ranges": [],
+        "non_contiguous": false
+      },
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results."
+      ]
+    },
+    {
+      "address": "EXTERNAL:0x2",
+      "name": "/usr/lib/libSystem.B.dylib::_exit",
+      "status": "external",
+      "body": {
+        "available": true,
+        "ranges": [],
+        "non_contiguous": false
+      },
+      "limitations": [
+        "The session serves operations only after Ghidra reports default auto-analysis complete; incomplete analysis does not expose partial results."
+      ]
+    }
+  ]
+}

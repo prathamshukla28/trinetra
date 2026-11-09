@@ -1,73 +1,95 @@
-// Adapter for the REA reverse-engineering engine (morluto/rea).
+// Adapter for the REA reverse-engineering engine (`rea-agents`, morluto/rea).
 //
-// Trinetra talks to REA only through this file. When `rea-agents` is installed in
-// the project, the INSPECT stage reconstructs the target with REA's semantic
-// graph instead of our built-in regex extractor. Everything downstream
-// (understand / audit / rebuild) is unchanged.
+// Trinetra delegates two jobs to REA and talks to it only through this file:
+//   - `analyze-javascript-application` — semantic graph of a JS/Electron app
+//   - `decompile-all` — Ghidra decompilation of every function in a binary
+// Process execution and output parsing are separate so the parsers can be
+// tested against recorded REA output.
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
+import { commandFor, which } from "../util/exec.js";
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const REA_BIN = path.join(ROOT, "node_modules", ".bin", "rea");
+const require = createRequire(import.meta.url);
 
-export function isReaAvailable() {
-  return fs.existsSync(REA_BIN);
-}
-
-// Load optional config (Ghidra install dir, JDK bin) so native analysis works.
-function loadConfig() {
-  const file = path.join(ROOT, "trinetra.config.json");
+/**
+ * Locate the REA CLI. Order: $TRINETRA_REA_BIN → the `rea-agents` package this
+ * module resolves (works for source checkouts *and* global/npx installs, where
+ * dependencies may be hoisted) → `rea` on PATH. Returns null if none is found.
+ */
+export function resolveReaBin({ env = process.env } = {}) {
+  if (env.TRINETRA_REA_BIN) return fs.existsSync(env.TRINETRA_REA_BIN) ? env.TRINETRA_REA_BIN : null;
   try {
-    return JSON.parse(fs.readFileSync(file, "utf8"));
+    const pkgFile = require.resolve("rea-agents/package.json");
+    const pkg = JSON.parse(fs.readFileSync(pkgFile, "utf8"));
+    const rel = typeof pkg.bin === "string" ? pkg.bin : (pkg.bin?.rea ?? pkg.bin?.["rea-agents"]);
+    if (rel) {
+      const bin = path.join(path.dirname(pkgFile), rel);
+      if (fs.existsSync(bin)) return bin;
+    }
   } catch {
-    return {};
+    /* not installed alongside Trinetra */
   }
+  return which("rea", { env });
 }
 
-// Environment for REA: inject the analysis-engine paths when configured.
-function reaEnv() {
-  const cfg = loadConfig();
-  const env = { ...process.env };
-  if (cfg.ghidraInstallDir) env.GHIDRA_INSTALL_DIR = cfg.ghidraInstallDir;
-  if (cfg.javaBinDir) env.PATH = `${cfg.javaBinDir}:${env.PATH}`;
-  return env;
+export const isReaAvailable = (opts) => resolveReaBin(opts) !== null;
+
+export const REA_MISSING =
+  "REA (rea-agents) was not found. Install it with `npm install -g rea-agents`, " +
+  "or point TRINETRA_REA_BIN at the `rea` executable.";
+
+// Environment for REA. The user's own environment always wins; config-file
+// values only fill gaps (see context.js for the precedence rules).
+export function reaEnv(config = {}, env = process.env) {
+  const out = { ...env };
+  if (!out.GHIDRA_INSTALL_DIR && config.ghidraInstallDir) out.GHIDRA_INSTALL_DIR = config.ghidraInstallDir;
+  if (config.javaBinDir) out.PATH = `${config.javaBinDir}${path.delimiter}${out.PATH ?? ""}`;
+  return out;
 }
 
-// Run a REA command and return the final (non-progress) JSON record.
-function runReaCommand(args) {
-  const out = execFileSync(REA_BIN, [...args, "--format", "json"], {
-    cwd: ROOT,
-    env: reaEnv(),
-    maxBuffer: 256 * 1024 * 1024,
-    stdio: ["ignore", "pipe", "ignore"],
-  }).toString();
-  const records = out.split("\n").filter(Boolean);
-  // Drop streaming progress lines; the last record is the result (or an error).
-  const last = records.filter((l) => !l.includes('"rea_progress"')).pop();
-  const rec = JSON.parse(last);
-  if (rec.code && rec.category) {
-    throw new Error(`REA ${rec.code}: ${rec.message}`);
-  }
+// REA streams `rea_progress` records; the last other record is the result (or
+// a structured error).
+export function parseReaStdout(stdout) {
+  const records = String(stdout)
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .filter((l) => !l.includes('"rea_progress"'));
+  if (records.length === 0) throw new Error("REA produced no result record");
+  const rec = JSON.parse(records.at(-1));
+  if (rec.code && rec.category) throw new Error(`REA ${rec.code}: ${rec.message}`);
   return rec;
 }
 
-// Inspect a native program/binary via REA (requires an analysis engine such as
-// Ghidra). Returns the same unit shape; raw source is empty for binaries.
-export async function reaInspectNative(target) {
-  // decompile-all runs Ghidra once and yields BOTH the procedure list and the
-  // pseudocode of every function, written to a directory with an index.
-  const name = path.basename(target);
-  const parent = path.join(ROOT, "reports", ".rea-decomp");
-  const outDir = path.join(parent, name);
-  // decompile-all creates the output dir itself and refuses a pre-existing one,
-  // so we ensure only the parent exists and clear any stale run.
-  fs.mkdirSync(parent, { recursive: true });
-  fs.rmSync(outDir, { recursive: true, force: true });
-  runReaCommand(["decompile-all", target, "--output", outDir]);
+function runReaCommand(args, ctx) {
+  const bin = resolveReaBin({ env: ctx.env });
+  if (!bin) throw new Error(REA_MISSING);
+  const { command, args: pre } = commandFor(bin);
+  let out;
+  try {
+    out = execFileSync(command, [...pre, ...args, "--format", "json"], {
+      cwd: ctx.cwd,
+      env: reaEnv(ctx.config, ctx.env),
+      maxBuffer: 256 * 1024 * 1024,
+      timeout: Number(ctx.env.TRINETRA_REA_TIMEOUT_MS) || 30 * 60 * 1000,
+      stdio: ["ignore", "pipe", "pipe"],
+    }).toString();
+  } catch (err) {
+    // REA reports structured errors on stdout even when it exits non-zero.
+    out = err.stdout?.toString() ?? "";
+    if (!out.trim()) {
+      const detail = err.stderr?.toString().trim().split("\n").pop() || err.message;
+      throw new Error(`REA failed: ${detail}`);
+    }
+  }
+  return parseReaStdout(out);
+}
 
+// Turn a decompile-all output directory into Trinetra's inspection fields.
+export function parseDecompileDir(outDir, target) {
   const index = JSON.parse(fs.readFileSync(path.join(outDir, "decompile-index.json"), "utf8"));
   const fns = index.functions ?? [];
   const local = fns.filter((f) => f.status === "written" && f.relative_path);
@@ -80,7 +102,7 @@ export async function reaInspectNative(target) {
     try {
       samplePseudo = fs.readFileSync(path.join(outDir, sample.relative_path), "utf8");
     } catch {
-      /* ignore */
+      /* the index can outlive a partially-written run */
     }
   }
 
@@ -90,19 +112,27 @@ export async function reaInspectNative(target) {
     statistics: { procedures: local.length, external: fns.length - local.length },
     overview: samplePseudo,
     sampleName: sample?.name,
-    decompDir: path.relative(ROOT, outDir),
+    decompDir: outDir,
     // name → per-function pseudocode hash, for detecting changed functions.
     fnHashes: Object.fromEntries(local.map((f) => [f.name, f.sha256])),
   };
 }
 
-// Reconstruct a local JavaScript/Electron application and map REA's semantic
-// graph onto Trinetra's unit shape.
-export async function reaInspectJs(target) {
-  const rec = runReaCommand(["analyze-javascript-application", target, "--detail", "complete"]);
+// Decompile a native binary via REA + Ghidra into <out>/.work/rea-decomp/<name>.
+export async function reaInspectNative(target, ctx, name = path.basename(target)) {
+  const parent = path.join(ctx.workDir, "rea-decomp");
+  const outDir = path.join(parent, name);
+  // decompile-all refuses a pre-existing output dir, so clear any stale run.
+  fs.mkdirSync(parent, { recursive: true });
+  fs.rmSync(outDir, { recursive: true, force: true });
+  runReaCommand(["decompile-all", path.resolve(target), "--output", outDir], ctx);
+  return parseDecompileDir(outDir, target);
+}
+
+// Map REA's JavaScript-application record onto Trinetra's unit shape.
+export function parseReaJsRecord(rec) {
   const nr = rec.normalized_result ?? {};
   const nodes = nr.semantic_graph?.nodes ?? [];
-
   const units = nodes
     .filter((n) => n.kind === "function")
     .map((n) => ({
@@ -122,4 +152,12 @@ export async function reaInspectJs(target) {
     statistics: nr.statistics ?? {},
     reaFindings: nr.statistics?.findings ?? 0,
   };
+}
+
+export async function reaInspectJs(target, ctx) {
+  const rec = runReaCommand(
+    ["analyze-javascript-application", path.resolve(target), "--detail", "complete"],
+    ctx,
+  );
+  return parseReaJsRecord(rec);
 }

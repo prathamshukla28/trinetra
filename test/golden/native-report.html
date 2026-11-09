@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trinetra · vuln</title>
+<style>
+  :root { --bg:#ffffff; --fg:#18181b; --muted:#71717a; --card:#f4f4f5; --border:#e4e4e7; --accent:#7c3aed; --code:#f4f4f5; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0b0b0f; --fg:#e4e4e7; --muted:#a1a1aa; --card:#18181b; --border:#27272a; --accent:#a78bfa; --code:#101014; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:40px 16px 80px; }
+  h1 { font-size:26px; margin:6px 0 2px; letter-spacing:-0.02em; }
+  h1 .name { color:var(--accent); }
+  .sub { color:var(--muted); margin:0 0 24px; font-size:13px; }
+  .meta { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:24px; font-size:13px; }
+  .meta div { margin:3px 0; }
+  code { word-break:break-all; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:12px; margin-bottom:32px; }
+  .tile { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
+  .tile .v { font-size:28px; font-weight:700; }
+  .tile .l { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+  h2 { font-size:18px; margin:32px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .finding { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .finding-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .badge { color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; }
+  .finding-title { font-weight:600; }
+  .engine { margin-left:auto; font-size:11px; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:1px 8px; }
+  .where { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--muted); margin:6px 0; }
+  .why { margin:6px 0; }
+  pre { background:var(--code); border:1px solid var(--border); border-radius:8px; padding:12px; overflow:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { padding:6px 8px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+  .muted { color:var(--muted); }
+  footer { margin-top:48px; color:var(--muted); font-size:12px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="name">Trinetra</span> teardown — vuln</h1>
+  <p class="sub">Generated 2026-01-01T00:00:00.000Z · engine: trinetra-binary</p>
+
+  <div class="meta">
+    <div>Target: <code>bin/vuln</code> (native)</div>
+    <div>SHA-256: <code>bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb</code></div>
+    <div>Analyzed by: Trinetra binary parser</div>
+    
+    <div class="muted">Note: Decompilation skipped (--no-decompile).</div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="v" >2</div><div class="l">Imports</div></div><div class="tile"><div class="v" >1</div><div class="l">Files</div></div><div class="tile"><div class="v" style="color:#e5484d">1</div><div class="l">High</div></div><div class="tile"><div class="v" style="color:#f5a623">2</div><div class="l">Medium</div></div><div class="tile"><div class="v" style="color:#c9a800">1</div><div class="l">Low</div></div>
+  </div>
+  <h2>Binary hardening</h2><div class="scroll"><table><thead><tr><th>Arch</th><th>Type</th><th>PIE/ASLR</th><th>Stack canary</th><th>NX</th><th>RELRO</th><th>Signature</th><th>Notes</th></tr></thead><tbody><tr><td>x86_64</td><td>executable</td><td>no</td><td>no</td><td>yes</td><td>none</td><td>n/a</td><td></td></tr></tbody></table></div>
+
+  <h2>What it does</h2>
+  <ul><li>ELF executable (x86_64).</li><li>Links libc.so.6.</li><li>Imports 2 function(s).</li></ul>
+
+  <h2>Security findings</h2>
+  <div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#e5484d">HIGH</span>
+    <span class="finding-title">Imports gets()</span>
+    <span class="engine">trinetra-binary · high confidence</span>
+  </div>
+  <div class="where">bin/vuln</div>
+  
+  <p class="why">gets() cannot bound its input; any use is a stack buffer overflow waiting for long input.</p>
+  <pre class="evidence"><code>gets</code></pre>
+</div>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#f5a623">MEDIUM</span>
+    <span class="finding-title">Not position-independent (no ASLR)</span>
+    <span class="engine">trinetra-binary · high confidence</span>
+  </div>
+  <div class="where">bin/vuln</div>
+  
+  <p class="why">Fixed load addresses make memory-corruption exploits reliable.</p>
+  <pre class="evidence"><code>filetype=executable, PIE=false</code></pre>
+</div>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#f5a623">MEDIUM</span>
+    <span class="finding-title">No RELRO</span>
+    <span class="engine">trinetra-binary · high confidence</span>
+  </div>
+  <div class="where">bin/vuln</div>
+  
+  <p class="why">The GOT stays writable, so a write primitive can redirect library calls.</p>
+  <pre class="evidence"><code>no PT_GNU_RELRO</code></pre>
+</div>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#c9a800">LOW</span>
+    <span class="finding-title">No stack canary (__stack_chk_fail not imported)</span>
+    <span class="engine">trinetra-binary · medium confidence</span>
+  </div>
+  <div class="where">bin/vuln</div>
+  
+  <p class="why">Built without -fstack-protector (or no function needed one); stack overflows go undetected.</p>
+  <pre class="evidence"><code>2 imports, none of __stack_chk_fail/__stack_chk_guard</code></pre>
+</div>
+
+  <h2>Since last run</h2>
+  <p class="muted">First teardown of this target — this run is now the baseline.</p>
+
+  <h2>Rebuild</h2>
+  <p>Reimplemented 2 unit(s) test-first in rebuilt/vuln — 1 passed, 1 blocked.</p><ul><li>✅ <code>entry</code> — passed <span class="muted">(sandbox: env stripped, fs sbx, network blocked (sandbox-exec))</span></li><li>⛔ <code>helper</code> — blocked <span class="muted">(imports child_process)</span></li></ul>
+  <h2>Engines</h2><div class="scroll"><table><thead><tr><th>Engine</th><th>Provided by</th><th>Status</th></tr></thead><tbody><tr><td>Binary format + hardening checks</td><td>Trinetra</td><td>ran (elf: x86_64)</td></tr><tr><td>REA (JS reconstruction / Ghidra decompilation)</td><td>delegated: rea-agents</td><td>not installed</td></tr><tr><td>Semgrep community packs</td><td>delegated: semgrep</td><td>not applicable</td></tr><tr><td>Rebuild code generation</td><td>delegated: Claude</td><td>generated + sandboxed run</td></tr></tbody></table></div>
+
+  <footer>Generated by Trinetra.</footer>
+</div>
+</body>
+</html>

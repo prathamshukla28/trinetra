@@ -13,8 +13,9 @@ npm test          # should be all green
 npm run demo      # audit the bundled sample
 ```
 
-Requirements: Node.js ≥ 22. Optional: `semgrep` (deep source audit), a JDK + Ghidra
-12.1.x (native binaries — see the README), `ANTHROPIC_API_KEY` (the real `--rebuild`).
+Requirements: Node.js ≥ 22. Optional: `semgrep` (community rule packs), a JDK + Ghidra
+12.1.x (native decompilation — see the README), `ANTHROPIC_API_KEY` (model-generated
+`--rebuild`). The test suite needs none of them.
 
 ## Before you open a PR
 
@@ -38,14 +39,22 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the pipeline and how to a
 new engine, stage, or rule. In short:
 
 - `src/stages/` — the four pipeline stages
+- `src/analysis/` — Trinetra's JavaScript AST + taint analyzer
+- `src/binary/` — Trinetra's ELF / Mach-O / PE parsers and hardening checks
 - `src/adapters/` — how Trinetra talks to each engine (REA, Semgrep, Claude)
-- `test/` — `node:test` suites
+- `test/` — `node:test` suites; `test/fixtures/` holds recorded engine output and
+  replaying stand-ins; `test/golden/` holds expected reports
 
 ## Adding a security rule
 
-Built-in source rules live in `SOURCE_RULES`, native (decompiled) rules in
-`NATIVE_RULES`, both in `src/stages/audit.js`. Add a `canonical()` mapping so your
-rule correlates with equivalent findings from other engines, and a test.
+JavaScript rules live in `src/analysis/js-ast.js` (`RULES` + the checks in
+`checkCall` / `walk`), binary hardening checks in `src/binary/index.js`, and
+pseudocode rules in `NATIVE_RULES` in `src/stages/audit.js`. Add a `canonical()`
+mapping so your rule correlates with equivalent findings from other engines, and
+tests for both a true positive and a near-miss that must *not* be flagged.
+
+If a change alters report output, regenerate the golden files with
+`UPDATE_GOLDEN=1 npm test` and review the diff.
 
 ## Commit messages
 

@@ -1,0 +1,5 @@
+{
+  "ghidraInstallDir": "/path/to/ghidra_12.1.x_PUBLIC",
+  "javaBinDir": "/path/to/jdk-21/bin",
+  "outDir": "trinetra-out"
+}

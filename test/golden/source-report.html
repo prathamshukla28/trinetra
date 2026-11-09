@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Trinetra · sample-cli</title>
+<style>
+  :root { --bg:#ffffff; --fg:#18181b; --muted:#71717a; --card:#f4f4f5; --border:#e4e4e7; --accent:#7c3aed; --code:#f4f4f5; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0b0b0f; --fg:#e4e4e7; --muted:#a1a1aa; --card:#18181b; --border:#27272a; --accent:#a78bfa; --code:#101014; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; padding:40px 16px 80px; }
+  h1 { font-size:26px; margin:6px 0 2px; letter-spacing:-0.02em; }
+  h1 .name { color:var(--accent); }
+  .sub { color:var(--muted); margin:0 0 24px; font-size:13px; }
+  .meta { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; margin-bottom:24px; font-size:13px; }
+  .meta div { margin:3px 0; }
+  code { word-break:break-all; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:12px; margin-bottom:32px; }
+  .tile { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
+  .tile .v { font-size:28px; font-weight:700; }
+  .tile .l { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+  h2 { font-size:18px; margin:32px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .finding { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  .finding-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .badge { color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; }
+  .finding-title { font-weight:600; }
+  .engine { margin-left:auto; font-size:11px; color:var(--muted); border:1px solid var(--border); border-radius:999px; padding:1px 8px; }
+  .where { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--muted); margin:6px 0; }
+  .why { margin:6px 0; }
+  pre { background:var(--code); border:1px solid var(--border); border-radius:8px; padding:12px; overflow:auto; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { padding:6px 8px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+  .muted { color:var(--muted); }
+  footer { margin-top:48px; color:var(--muted); font-size:12px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span class="name">Trinetra</span> teardown — sample-cli</h1>
+  <p class="sub">Generated 2026-01-01T00:00:00.000Z · engine: trinetra-ast</p>
+
+  <div class="meta">
+    <div>Target: <code>sample-cli</code> (source)</div>
+    <div>SHA-256: <code>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</code></div>
+    <div>Analyzed by: Trinetra AST analyzer</div>
+    
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="v" >4</div><div class="l">Units</div></div><div class="tile"><div class="v" >1</div><div class="l">Files</div></div><div class="tile"><div class="v" style="color:#e5484d">3</div><div class="l">High</div></div><div class="tile"><div class="v" style="color:#f5a623">1</div><div class="l">Medium</div></div><div class="tile"><div class="v" style="color:#c9a800">1</div><div class="l">Low</div></div>
+  </div>
+  
+
+  <h2>What it does</h2>
+  <ul><li>1 source file(s), 4 function(s).</li><li>Depends on Node built-ins node:child_process, node:crypto.</li><li>Public surface: evalExpression, login, makeToken, runUserCommand.</li><li>Capabilities: runs shell commands / processes in runUserCommand; evaluates dynamic code in evalExpression; uses cryptography in login; generates random values in makeToken.</li></ul><div class="scroll"><table><thead><tr><th>Function</th><th>Where</th><th>Exported</th><th>What it touches</th></tr></thead><tbody><tr><td><code>login</code></td><td><code>sample-cli/index.js:8</code></td><td>yes</td><td>uses cryptography (crypto.createHash)</td></tr><tr><td><code>runUserCommand</code></td><td><code>sample-cli/index.js:13</code></td><td>yes</td><td>runs shell commands / processes (child_process.execSync)</td></tr><tr><td><code>makeToken</code></td><td><code>sample-cli/index.js:17</code></td><td>yes</td><td>generates random values (Math.random)</td></tr><tr><td><code>evalExpression</code></td><td><code>sample-cli/index.js:21</code></td><td>yes</td><td>evaluates dynamic code (global.eval)</td></tr></tbody></table></div>
+
+  <h2>Security findings</h2>
+  <div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#e5484d">HIGH</span>
+    <span class="finding-title">Shell command built from a non-literal value</span>
+    <span class="engine">trinetra-ast · medium confidence</span>
+  </div>
+  <div class="where">sample-cli/index.js:14 in runUserCommand</div>
+  
+  <p class="why">child_process exec/execSync (or spawn with shell:true) passes the string to /bin/sh — any input in it is command injection.</p>
+  <pre class="evidence"><code>return execSync(cmd).toString(); // command injection</code></pre>
+</div>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#e5484d">HIGH</span>
+    <span class="finding-title">Dynamic code execution with a non-literal argument</span>
+    <span class="engine">trinetra-ast · medium confidence</span>
+  </div>
+  <div class="where">sample-cli/index.js:22 in evalExpression</div>
+  
+  <p class="why">eval / new Function / vm run strings as code; attacker-influenced input becomes arbitrary code.</p>
+  <pre class="evidence"><code>return eval(expr); // dynamic eval</code></pre>
+</div>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#e5484d">HIGH</span>
+    <span class="finding-title">Hardcoded secret</span>
+    <span class="engine">trinetra-ast · high confidence</span>
+  </div>
+  <div class="where">sample-cli/index.js:6 in (top level)</div>
+  
+  <p class="why">Credentials in source leak through the repo, logs, and shipped builds. Matches a known credential format.</p>
+  <pre class="evidence"><code>const API_KEY = &quot;sk_l…(redacted, 24 chars)&quot;; // hardcoded secret (bad)</code></pre>
+</div>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#f5a623">MEDIUM</span>
+    <span class="finding-title">Weak hashing algorithm (MD5 / SHA-1)</span>
+    <span class="engine">trinetra-ast · high confidence</span>
+  </div>
+  <div class="where">sample-cli/index.js:9 in login</div>
+  
+  <p class="why">MD5 and SHA-1 are broken for integrity, signatures, and password storage. Algorithm: md5.</p>
+  <pre class="evidence"><code>const hash = crypto.createHash(&quot;md5&quot;).update(password).digest(&quot;hex&quot;); // weak hash</code></pre>
+</div>
+<div class="finding">
+  <div class="finding-head">
+    <span class="badge" style="background:#c9a800">LOW</span>
+    <span class="finding-title">Math.random() used for a security-sensitive value</span>
+    <span class="engine">trinetra-ast · medium confidence</span>
+  </div>
+  <div class="where">sample-cli/index.js:18 in makeToken</div>
+  
+  <p class="why">Math.random is predictable — unsafe for tokens, IDs, nonces, or keys. Use crypto.randomUUID / randomBytes. Used in `makeToken`.</p>
+  <pre class="evidence"><code>return Math.floor(Math.random() * 1e9).toString(); // insecure randomness</code></pre>
+</div>
+
+  <h2>Since last run</h2>
+  <p>Compared with 2025-12-31T00:00:00.000Z: content <strong>changed</strong>; <strong>1</strong> new, <strong>1</strong> fixed, 4 unchanged.</p>
+  <ul><li>new: Shell command built from a non-literal value — <code>sample-cli/index.js:14</code></li><li>fixed: Weak hashing algorithm (MD5 / SHA-1) — <code>sample-cli/old.js:3</code></li></ul>
+
+  <h2>Rebuild</h2>
+  <p>Scaffolded 2 test-first stub file(s) in rebuilt/sample-cli. Set ANTHROPIC_API_KEY for a model-generated reimplementation.</p>
+  <h2>Engines</h2><div class="scroll"><table><thead><tr><th>Engine</th><th>Provided by</th><th>Status</th></tr></thead><tbody><tr><td>JavaScript AST rules + taint tracking</td><td>Trinetra</td><td>ran on 1/1 file(s)</td></tr><tr><td>REA (JS reconstruction / Ghidra decompilation)</td><td>delegated: rea-agents</td><td>disabled (--no-rea)</td></tr><tr><td>Semgrep community packs</td><td>delegated: semgrep</td><td>disabled (--no-semgrep)</td></tr><tr><td>Rebuild code generation</td><td>Trinetra (scaffold)</td><td>scaffolded stubs (no API key)</td></tr></tbody></table></div>
+
+  <footer>Generated by Trinetra.</footer>
+</div>
+</body>
+</html>

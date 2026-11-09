@@ -24,6 +24,9 @@ In scope:
 
 - The Trinetra CLI and its pipeline (`src/`)
 - How Trinetra invokes its analysis engines (REA, Semgrep, Ghidra)
+- The `--rebuild --run-generated` sandbox (`src/sandbox.js`): any way for generated
+  code to read the caller's environment or files, spawn processes, or escape its
+  temp directory is a vulnerability
 
 Out of scope:
 
@@ -37,6 +40,16 @@ Trinetra reverse-engineers software. Only run it against software you own, that 
 open-source, that you are explicitly authorized to analyze, or that exists for
 security practice (CTF). Using it to defeat protections on software you aren't
 permitted to analyze may be illegal.
+
+## Handling untrusted targets
+
+Everything Trinetra analyzes is treated as untrusted input. Target text sent to
+Claude for `--rebuild` is fenced and labelled as data, and generated code is never
+executed unless `--run-generated` is passed — then only after a static review and
+inside a sandbox (stripped environment, Node permission model limited to a temp
+directory, no child processes or workers, timeout, OS-level network denial where
+available). Node 22's permission model does not cover network access; on hosts
+without `sandbox-exec`/`unshare` the report states `network: not restricted`.
 
 ## Supported versions
 

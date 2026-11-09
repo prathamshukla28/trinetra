@@ -1,11 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { audit, correlate } from "../src/stages/audit.js";
-
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("correlate merges the same issue reported by two engines", () => {
   const merged = correlate([
@@ -58,12 +56,12 @@ test("correlate keeps distinct issues separate", () => {
 });
 
 test("native rules flag dangerous C calls in decompiled pseudocode", async () => {
-  const dir = path.join(ROOT, "reports", ".test-decomp");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "trinetra-decomp-"));
   const fnDir = path.join(dir, "functions");
   fs.mkdirSync(fnDir, { recursive: true });
   fs.writeFileSync(path.join(fnDir, "vuln.c"), `void f(char *s){ char b[8]; _strcpy(b,s); _system("ls"); }`);
   try {
-    const findings = await audit({ decompDir: "reports/.test-decomp" }, {});
+    const findings = await audit({ decompDir: dir }, {});
     const rules = findings.map((x) => x.rule);
     assert.ok(rules.includes("native-command-exec"));
     assert.ok(rules.includes("native-unsafe-string"));

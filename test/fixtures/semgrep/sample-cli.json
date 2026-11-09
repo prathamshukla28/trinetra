@@ -1,0 +1,180 @@
+{
+  "version": "1.181.0",
+  "results": [
+    {
+      "check_id": "ajinabraham.njsscan.generic.hardcoded_secrets.node_api_key",
+      "path": "<target>/index.js",
+      "start": {
+        "line": 6,
+        "col": 7,
+        "offset": 218
+      },
+      "end": {
+        "line": 6,
+        "col": 43,
+        "offset": 254
+      },
+      "extra": {
+        "message": "A hardcoded API Key is identified. Store it properly in an environment variable.",
+        "metadata": {
+          "owasp-web": "a3",
+          "cwe": "cwe-798",
+          "license": "LGPL-3.0-or-later",
+          "vulnerability_class": [
+            "Other"
+          ],
+          "source": "https://semgrep.dev/r/ajinabraham.njsscan.generic.hardcoded_secrets.node_api_key",
+          "shortlink": "https://sg.run/G3B2"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "ajinabraham.njsscan.crypto.crypto_node.node_md5",
+      "path": "<target>/index.js",
+      "start": {
+        "line": 9,
+        "col": 16,
+        "offset": 331
+      },
+      "end": {
+        "line": 9,
+        "col": 40,
+        "offset": 355
+      },
+      "extra": {
+        "message": "MD5 is a a weak hash which is known to have collision. Use a strong hashing function.",
+        "metadata": {
+          "owasp-web": "a9",
+          "cwe": "cwe-327",
+          "license": "LGPL-3.0-or-later",
+          "vulnerability_class": [
+            "Other"
+          ],
+          "source": "https://semgrep.dev/r/ajinabraham.njsscan.crypto.crypto_node.node_md5",
+          "shortlink": "https://sg.run/PxxW"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+    {
+      "check_id": "ajinabraham.njsscan.crypto.crypto_node.node_insecure_random_generator",
+      "path": "<target>/index.js",
+      "start": {
+        "line": 18,
+        "col": 21,
+        "offset": 576
+      },
+      "end": {
+        "line": 18,
+        "col": 34,
+        "offset": 589
+      },
+      "extra": {
+        "message": "crypto.pseudoRandomBytes()/Math.random() is a cryptographically weak random number generator.",
+        "metadata": {
+          "owasp-web": "a9",
+          "cwe": "cwe-327",
+          "license": "LGPL-3.0-or-later",
+          "vulnerability_class": [
+            "Other"
+          ],
+          "source": "https://semgrep.dev/r/ajinabraham.njsscan.crypto.crypto_node.node_insecure_random_generator",
+          "shortlink": "https://sg.run/ABG8"
+        },
+        "severity": "WARNING",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    }
+  ],
+  "errors": [],
+  "paths": {
+    "scanned": [
+      "targets/sample-cli/index.js"
+    ]
+  },
+  "time": {
+    "rules": [],
+    "rules_parse_time": 0.3392059803009033,
+    "profiling_times": {
+      "config_time": 1.998126745223999,
+      "core_time": 1.6206002235412598,
+      "ignores_time": 0.0011310577392578125,
+      "total_time": 3.6343119144439697
+    },
+    "parsing_time": {
+      "total_time": 0.01900005340576172,
+      "per_file_time": {
+        "mean": 0.0011176502003389247,
+        "std_dev": 0.000019970286854762807
+      },
+      "very_slow_stats": {
+        "time_ratio": 0,
+        "count_ratio": 0
+      },
+      "very_slow_files": []
+    },
+    "scanning_time": {
+      "total_time": 0.04986214637756348,
+      "per_file_time": {
+        "mean": 0.016620715459187824,
+        "std_dev": 0.00046936291400672623
+      },
+      "very_slow_stats": {
+        "time_ratio": 0,
+        "count_ratio": 0
+      },
+      "very_slow_files": []
+    },
+    "matching_time": {
+      "total_time": 0.017177581787109375,
+      "per_file_and_rule_time": {
+        "mean": 0.001010445987477022,
+        "std_dev": 0.000004854153142027243
+      },
+      "very_slow_stats": {
+        "time_ratio": 0,
+        "count_ratio": 0
+      },
+      "very_slow_rules_on_files": []
+    },
+    "tainting_time": {
+      "total_time": 0.0005619525909423828,
+      "per_def_and_rule_time": {
+        "mean": 0.00011239051818847656,
+        "std_dev": 4.331095624365844e-9
+      },
+      "very_slow_stats": {
+        "time_ratio": 0,
+        "count_ratio": 0
+      },
+      "very_slow_rules_on_defs": []
+    },
+    "fixpoint_timeouts": [],
+    "prefiltering": {
+      "project_level_time": 0,
+      "file_level_time": 0,
+      "rules_with_project_prefilters_ratio": 0,
+      "rules_with_file_prefilters_ratio": 0.9785407725321889,
+      "rules_selected_ratio": 0.0815450643776824,
+      "rules_matched_ratio": 0.0815450643776824
+    },
+    "targets": [],
+    "total_bytes": 0,
+    "max_memory_bytes": 406149568
+  },
+  "engine_requested": "OSS",
+  "skipped_rules": [],
+  "profiling_results": []
+}
