@@ -51,7 +51,10 @@ is redacted); `Math.random()` where the value is evidently a token/key/id. Value
 templates and calls (with `path.basename`, `Number`, `encodeURIComponent` treated as
 sanitizers), which raises confidence and enables taint-only rules: path traversal
 into `fs.*`/`res.sendFile`, SQL built from request input, and SSRF via
-`fetch`/`http(s).get`. Files that don't parse (e.g. TypeScript) get credential and
+`fetch`/`http(s).get`. Values fixed at authoring time — literals, `const` bindings to
+literals, `__dirname`-relative `path.join`, `require.resolve("…")` — are not treated as
+dynamic, and HTML passed through a sanitizer call (`DOMPurify.sanitize`, `escapeHtml`)
+is not reported as DOM XSS. Files that don't parse (e.g. TypeScript) get credential and
 weak-hash line checks only, labelled `trinetra-regex`.
 
 **Binaries (no Ghidra needed).** PIE/ASLR, stack canary (`__stack_chk_fail` import),
@@ -63,8 +66,59 @@ binary, and imports of `gets`, `strcpy`/`strcat`/`sprintf`, `system`/`popen`, an
 
 **Known limits.** Taint is intra-function and name-based (no inter-procedural flow,
 no alias analysis). Binary checks are header/import level — they don't prove a
-dangerous function is reachable. Precision/recall has not yet been measured on a
-labeled corpus.
+dangerous function is reachable. Measured accuracy is below.
+
+## Accuracy
+
+Measured by `npm run bench`, which rebuilds [bench/RESULTS.md](bench/RESULTS.md)
+(full per-rule tables, every false positive and false negative with a reason). Three
+JavaScript corpora:
+
+| Corpus | Contents | TP | FP | FN | Precision | Recall | F1 |
+|---|---|--:|--:|--:|--:|--:|--:|
+| Synthetic (`bench/js`) | 30 files, 118 line labels: 40 vulnerable, 26 vulnerable in known blind spots, 52 tricky negatives | 41 | 5 | 25 | 89.1% | 62.1% | 0.73 |
+| [OWASP NodeGoat](https://github.com/OWASP/NodeGoat) @ `c5cb68a` | 50 files, as `teardown` selects them; labels cite the tutorial or the code | 10 | 6 | 2 | 62.5% | 83.3% | 0.71 |
+| 17 popular npm packages | 191k lines (acorn, ajv, commander, prettier, ws, …); every finding triaged by hand | 0 | 34 | – | 0.0% | – | – |
+| **Pooled** | | **51** | **45** | **27** | **53.1%** | **65.4%** | **0.59** |
+
+| Rule (pooled) | TP | FP | FN | Precision | Recall | F1 |
+|---|--:|--:|--:|--:|--:|--:|
+| `command-injection` | 5 | 3 | 3 | 62.5% | 62.5% | 0.63 |
+| `dom-xss` | 4 | 2 | 3 | 66.7% | 57.1% | 0.62 |
+| `dynamic-eval` | 8 | 8 | 4 | 50.0% | 66.7% | 0.57 |
+| `dynamic-require` | 3 | 11 | 2 | 21.4% | 60.0% | 0.32 |
+| `hardcoded-secret` | 14 | 11 | 4 | 56.0% | 77.8% | 0.65 |
+| `insecure-random` | 3 | 1 | 2 | 75.0% | 60.0% | 0.67 |
+| `path-traversal` | 4 | 1 | 2 | 80.0% | 66.7% | 0.73 |
+| `sql-injection` | 4 | 0 | 2 | 100.0% | 66.7% | 0.80 |
+| `ssrf` | 3 | 1 | 4 | 75.0% | 42.9% | 0.55 |
+| `weak-hash` | 3 | 7 | 1 | 30.0% | 75.0% | 0.43 |
+
+- **On clean real code every finding was noise:** 34 false positives in 191k lines
+  (0.18 per 1,000 lines), mostly `dynamic-require` (plugin loaders), `hardcoded-secret`
+  (a parser variable named `…Token`) and `weak-hash` (SHA-1 required by git and RFC 6455).
+  A finding counts as TP only if it is a real weakness under the code's own trust model.
+- **NodeGoat coverage:** 9 of its 22 labelled issues are detected. 11 of the 22 (NoSQL
+  injection, open redirect, ReDoS, IDOR, log injection, …) have no Trinetra rule, and the
+  `needle`-based SSRF is missed because only `fetch`/`http(s)`/`axios` are modelled.
+- **Binaries:** on 177 Mach-O files (320 slices; system, Homebrew, app and generated
+  binaries), PIE, canary, imports, signature, ad-hoc, Hardened Runtime, platform-binary,
+  executable-stack and arch fields agree 100% with `otool`/`nm`/`codesign`/`lipo`.
+  ELF has only 10 generated fixtures (Go cross-builds plus builder variants), checked
+  against `llvm-objdump`/`file`: 69/70 fields agree (one PIE case is ambiguous by
+  construction). The benchmark exposed two Mach-O parser bugs (x86_64h, weak-bind
+  imports), both now fixed.
+- **Limits, read before quoting these numbers:** the corpus is small (one case moves a
+  rule by many points); the labels, triage and synthetic cases were written by the
+  project's author, so self-labelling bias is likely; taint is intra-function only; TypeScript is
+  not parsed (regex fallback, not benchmarked); NodeGoat is a teaching app, not a
+  random sample of real code; binary numbers are from one macOS 26 host.
+- **Fixes the benchmark drove** (before → after, same labels and triage): an analyzer crash
+  on `"a" + "b"` secrets, which made `trinetra teardown` of NodeGoat abort outright (and
+  dropped `ws`/`minimatch` files); SQL strings built in a variable before `query()`; constants treated as
+  dynamic input; sanitized `innerHTML`; PEM headers and base64 blobs reported as keys.
+  Pooled precision went from 44.1% to 53.1% and recall from 62.8% to 65.4%. Most of the
+  precision gain is on the synthetic suite (78.0% → 89.1%); on NodeGoat it went from 58.8% to 62.5%.
 
 ## Demo
 
@@ -174,6 +228,7 @@ untrusted — the target could contain prompt-injection text). So:
 npm test                 # node:test suite (unit, golden-file, CLI, integration)
 npm run test:coverage    # with Node's built-in coverage
 npm run lint && npm run format
+npm run bench            # accuracy benchmark → bench/RESULTS.md (fetches the pinned NodeGoat commit)
 ```
 
 Integration tests run the real CLI against stand-ins for REA and Semgrep that replay
@@ -190,7 +245,8 @@ installed. See [CONTRIBUTING.md](CONTRIBUTING.md) and
 - [x] `compare` mode — added/removed/changed units + findings by category
 - [x] AST-based JavaScript rules with intra-function taint
 - [x] Run-to-run memory: new/fixed findings per target
-- [ ] Measure precision/recall on a labeled corpus (e.g. Juliet, OWASP Benchmark, CTF binaries)
+- [x] Measure precision/recall on a labelled corpus ([bench/RESULTS.md](bench/RESULTS.md))
+- [ ] Larger, independently labelled corpora (OWASP Benchmark, Juliet, CTF binaries); real ELF binaries
 - [ ] Inter-procedural taint; TypeScript parsing
 - [ ] SARIF output
 

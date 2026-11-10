@@ -1,0 +1,220 @@
+{
+  "corpus": "OWASP NodeGoat",
+  "repo": "https://github.com/OWASP/NodeGoat",
+  "commit": "c5cb68a7084e4ae7dcc60e6a98768720a81841e8",
+  "method": "Ground-truth labels were written by reading NodeGoat's tutorial pages (app/views/tutorial/*.html), its README and the code at the pinned commit; every label points at a line verified in that checkout. 'source' cites where the issue is documented; 'code-verified' means the issue is visible in the code but not called out in the tutorial. Labels whose rule Trinetra does not implement are kept (inScope=false) to measure coverage of documented issues; they do not enter per-rule precision/recall. Findings that match no label are triaged in 'triage' after the run.",
+  "labels": [
+    {
+      "file": "app/routes/contributions.js",
+      "line": 32,
+      "rule": "dynamic-eval",
+      "expected": true,
+      "source": "app/views/tutorial/a1.html, 'A1 - 1 Server Side JS Injection' (eval of req.body.preTax)"
+    },
+    {
+      "file": "app/routes/contributions.js",
+      "line": 33,
+      "rule": "dynamic-eval",
+      "expected": true,
+      "source": "app/views/tutorial/a1.html, 'A1 - 1 Server Side JS Injection' (eval of req.body.afterTax)"
+    },
+    {
+      "file": "app/routes/contributions.js",
+      "line": 34,
+      "rule": "dynamic-eval",
+      "expected": true,
+      "source": "app/views/tutorial/a1.html, 'A1 - 1 Server Side JS Injection' (eval of req.body.roth)"
+    },
+    {
+      "file": "app/routes/research.js",
+      "line": 16,
+      "rule": "ssrf",
+      "expected": true,
+      "source": "app/views/tutorial/ssrf.html (needle.get of req.query.url + req.query.symbol)"
+    },
+    {
+      "file": "config/env/all.js",
+      "line": 8,
+      "rule": "hardcoded-secret",
+      "expected": true,
+      "source": "code-verified: cookieSecret literal is the express-session signing secret (server.js:82 via config); tutorial a5.html shows `secret: config.cookieSecret`"
+    },
+    {
+      "file": "config/env/all.js",
+      "line": 9,
+      "rule": "hardcoded-secret",
+      "expected": true,
+      "source": "code-verified: hardcoded AES key `cryptoKey`; app/views/tutorial/a6.html shows it as the key for the sensitive-data encryption fix (referenced only from commented-out code at this commit)"
+    },
+    {
+      "file": "config/env/development.js",
+      "line": 6,
+      "rule": "hardcoded-secret",
+      "expected": true,
+      "source": "code-verified: OWASP ZAP API key literal (`zapApiKey`)"
+    },
+    {
+      "file": "config/env/test.js",
+      "line": 6,
+      "rule": "hardcoded-secret",
+      "expected": true,
+      "source": "code-verified: OWASP ZAP API key literal (`zapApiKey`)"
+    },
+    {
+      "file": "artifacts/db-reset.js",
+      "line": 18,
+      "rule": "hardcoded-secret",
+      "expected": true,
+      "source": "README.md:22 and app/views/tutorial/a7.html (default admin account password Admin_123 seeded in plaintext)"
+    },
+    {
+      "file": "artifacts/db-reset.js",
+      "line": 27,
+      "rule": "hardcoded-secret",
+      "expected": true,
+      "source": "README.md:23 (default user1 password seeded in plaintext)"
+    },
+    {
+      "file": "artifacts/db-reset.js",
+      "line": 35,
+      "rule": "hardcoded-secret",
+      "expected": true,
+      "source": "README.md:23 (default user2 password seeded in plaintext)"
+    },
+    {
+      "file": "app/data/allocations-dao.js",
+      "line": 78,
+      "rule": "nosql-injection",
+      "expected": true,
+      "source": "app/views/tutorial/a1.html, 'A1 - 2 NoSQL Injection' ($where built from the threshold query parameter)"
+    },
+    {
+      "file": "app/routes/session.js",
+      "line": 64,
+      "rule": "log-injection",
+      "expected": true,
+      "source": "app/views/tutorial/a1.html, 'A1 - 3 Log Injection' (console.log of the raw userName)"
+    },
+    {
+      "file": "app/data/user-dao.js",
+      "line": 25,
+      "rule": "plaintext-password-storage",
+      "expected": true,
+      "source": "app/views/tutorial/a2.html, 'A2 - 1 Session Management' (password stored in plain text)"
+    },
+    {
+      "file": "app/routes/session.js",
+      "line": 144,
+      "rule": "weak-password-policy",
+      "expected": true,
+      "source": "app/routes/session.js:146 'Fix for A2-2' comment; app/views/tutorial/a2.html (PASS_RE accepts any 1-20 characters)"
+    },
+    {
+      "file": "server.js",
+      "line": 137,
+      "rule": "xss-autoescape-off",
+      "expected": true,
+      "source": "app/views/tutorial/a3.html (swig autoescape disabled)"
+    },
+    {
+      "file": "app/routes/allocations.js",
+      "line": 16,
+      "rule": "idor",
+      "expected": true,
+      "source": "app/views/tutorial/a4.html (userId taken from req.params instead of the session)"
+    },
+    {
+      "file": "server.js",
+      "line": 145,
+      "rule": "cleartext-transport",
+      "expected": true,
+      "source": "app/views/tutorial/a6.html (application served over plain HTTP)"
+    },
+    {
+      "file": "app/data/profile-dao.js",
+      "line": 62,
+      "rule": "sensitive-data-plaintext",
+      "expected": true,
+      "source": "app/views/tutorial/a6.html (SSN / DOB stored unencrypted)"
+    },
+    {
+      "file": "app/routes/index.js",
+      "line": 55,
+      "rule": "missing-access-control",
+      "expected": true,
+      "source": "app/views/tutorial/a7.html (benefits routes lack an isAdmin check)"
+    },
+    {
+      "file": "app/routes/index.js",
+      "line": 72,
+      "rule": "open-redirect",
+      "expected": true,
+      "source": "app/views/tutorial/a10.html (res.redirect(req.query.url))"
+    },
+    {
+      "file": "app/routes/profile.js",
+      "line": 59,
+      "rule": "redos",
+      "expected": true,
+      "source": "app/views/tutorial/redos.html (/([0-9]+)+\\#/ applied to bankRouting)"
+    }
+  ],
+  "triage": [
+    {
+      "file": "Gruntfile.js",
+      "line": 165,
+      "rule": "command-injection",
+      "verdict": "FP",
+      "reason": "Developer-run Grunt task; the command is built from NODE_ENV or the task argument, which an attacker does not control."
+    },
+    {
+      "file": "app/assets/vendor/chart/raphael-min.js",
+      "line": 10,
+      "rule": "dom-xss",
+      "verdict": "FP",
+      "reason": "Both non-literal innerHTML writes on this minified line are safe: `canvas.innerHTML=o` assigns the module's empty-string variable, and the VML text path escapes < and & before writing."
+    },
+    {
+      "file": "app/assets/vendor/html5shiv.js",
+      "line": 5,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "The Function() body is assembled from html5shiv's own element-name list, each name filtered through /\\w+/; no external data reaches it."
+    },
+    {
+      "file": "app/assets/vendor/jquery.min.js",
+      "line": 4,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "jQuery.parseJSON fallback for browsers without JSON.parse; the input must pass json2's structural validation regex before Function('return '+n)."
+    },
+    {
+      "file": "app/assets/vendor/jquery.min.js",
+      "line": 5,
+      "rule": "dom-xss",
+      "verdict": "FP",
+      "reason": "jQuery internals (.html(), clone, buildFragment) write caller-supplied HTML by design. The sink is real, but any vulnerability lies in the caller; this is library plumbing, not an XSS bug in NodeGoat."
+    },
+    {
+      "file": "config/config.js",
+      "line": 7,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "The path is __dirname plus a literal, fixed when the code is written. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "file": "config/config.js",
+      "line": 8,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Selects a config file by NODE_ENV, which the operator sets; not attacker input."
+    },
+    {
+      "file": "test/security/profile-test.js",
+      "line": 37,
+      "rule": "hardcoded-secret",
+      "verdict": "TP",
+      "reason": "The seeded user1 account's real password (README.md:23), repeated in a test."
+    }
+  ]
+}

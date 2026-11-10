@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Measured-accuracy benchmark (`npm run bench`, `bench/`): per-rule precision, recall
+  and F1 on a labelled synthetic suite, OWASP NodeGoat at a pinned commit and a
+  hand-triaged false-positive check on 17 popular packages, plus field-by-field
+  agreement of the binary parsers with `otool`/`nm`/`codesign`/`lipo` and
+  `llvm-objdump`/`file`. Results in `bench/RESULTS.md`.
 - JavaScript AST analyzer (`src/analysis/js-ast.js`, acorn) replacing line regexes:
   binding-aware sink matching (RegExp `.exec` and array-arg `spawn` are no longer
   flagged), intra-function taint from `process.argv`/`process.env`/request
@@ -56,6 +61,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- JS analyzer crashed on a string built by concatenating literals (`"a" + "b"`)
+  assigned to a secret-like name, dropping every finding in that file and aborting
+  `teardown`; `analyzeJs` now also falls back to line checks instead of throwing on
+  any internal error.
+- `sql-injection` missed queries assembled in a variable before `query(sql)`.
+- Values fixed at authoring time (`const` literals, `__dirname` paths,
+  `require.resolve("…")`) were reported as dynamic `eval`/`exec`/`require` input;
+  `createHash(ALG)` now resolves a `const` algorithm.
+- `innerHTML`/`document.write` of a sanitizer call (`DOMPurify.sanitize`,
+  `escapeHtml`) was reported as DOM XSS.
+- `hardcoded-secret` flagged bare PEM headers and `AKIA…` runs inside base64 blobs.
+- Mach-O: x86_64h slices were named x86_64; weak-definition coalescing entries in
+  chained fixups were reported as imports.
 - Works when installed from npm: reports, memory, rebuild output, thinned slices and
   decompiler output are written under `./trinetra-out` (or `--out`) in the caller's
   cwd instead of the package directory, and REA is resolved through the module graph

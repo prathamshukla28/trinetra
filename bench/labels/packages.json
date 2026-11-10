@@ -1,0 +1,435 @@
+{
+  "method": "No ground-truth vulnerabilities are known in these packages, so only precision is measured: every finding is triaged by hand as TP (a genuine instance of the weakness the rule names, reachable with data the program does not fix) or FP (the reported condition is false, or the data is constant/trusted by construction). All .js/.mjs/.cjs/.jsx files of each package are analysed (including dist/, test/ and benchmark files; nested node_modules excluded). Versions are pinned by package-lock.json; the benchmark flags any version drift.",
+  "packages": [
+    {
+      "name": "acorn",
+      "version": "8.19.0"
+    },
+    {
+      "name": "ajv",
+      "version": "8.20.0"
+    },
+    {
+      "name": "chalk",
+      "version": "4.1.2"
+    },
+    {
+      "name": "commander",
+      "version": "13.1.0"
+    },
+    {
+      "name": "cross-spawn",
+      "version": "7.0.6"
+    },
+    {
+      "name": "debug",
+      "version": "4.4.3"
+    },
+    {
+      "name": "diff",
+      "version": "9.0.0"
+    },
+    {
+      "name": "glob",
+      "version": "13.0.6"
+    },
+    {
+      "name": "isomorphic-git",
+      "version": "1.38.7"
+    },
+    {
+      "name": "jose",
+      "version": "6.2.13"
+    },
+    {
+      "name": "js-yaml",
+      "version": "4.3.2"
+    },
+    {
+      "name": "minimatch",
+      "version": "10.2.6"
+    },
+    {
+      "name": "pino",
+      "version": "10.4.0"
+    },
+    {
+      "name": "prettier",
+      "version": "3.9.10"
+    },
+    {
+      "name": "semver",
+      "version": "7.8.5"
+    },
+    {
+      "name": "ws",
+      "version": "8.21.0"
+    },
+    {
+      "name": "yaml",
+      "version": "2.9.0"
+    }
+  ],
+  "triage": [
+    {
+      "package": "ajv",
+      "file": "dist/compile/index.js",
+      "line": 89,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "Ajv compiles generated validator code with new Function by design. The source is generated from schemas, which Ajv's docs say must be trusted, so the sink is real but this is not a vulnerability in the package."
+    },
+    {
+      "package": "ajv",
+      "file": "dist/compile/jtd/parse.js",
+      "line": 50,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "Ajv compiles generated validator code with new Function by design. The source is generated from schemas, which Ajv's docs say must be trusted, so the sink is real but this is not a vulnerability in the package."
+    },
+    {
+      "package": "ajv",
+      "file": "dist/compile/jtd/serialize.js",
+      "line": 50,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "Ajv compiles generated validator code with new Function by design. The source is generated from schemas, which Ajv's docs say must be trusted, so the sink is real but this is not a vulnerability in the package."
+    },
+    {
+      "package": "isomorphic-git",
+      "file": "index.cjs",
+      "line": 3476,
+      "rule": "weak-hash",
+      "verdict": "FP",
+      "reason": "SHA-1 computes git object IDs, as the git object format requires; not a security choice by the package."
+    },
+    {
+      "package": "isomorphic-git",
+      "file": "managers/index.cjs",
+      "line": 4217,
+      "rule": "weak-hash",
+      "verdict": "FP",
+      "reason": "SHA-1 computes git object IDs, as the git object format requires; not a security choice by the package."
+    },
+    {
+      "package": "isomorphic-git",
+      "file": "index.umd.min.js",
+      "line": 2,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "function-bind polyfill: the Function() body is built from generated parameter names ($0, $1, …); no external data reaches it."
+    },
+    {
+      "package": "isomorphic-git",
+      "file": "managers/index.umd.min.js",
+      "line": 2,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "function-bind polyfill: the Function() body is built from generated parameter names ($0, $1, …); no external data reaches it."
+    },
+    {
+      "package": "jose",
+      "file": "dist/webapi/key/import.js",
+      "line": 18,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "A bare PEM header used as a format-check prefix, with no key material. (Only the baseline reports this; the PEM pattern now requires key material.)"
+    },
+    {
+      "package": "pino",
+      "file": "benchmarks/utils/generate-benchmark-doc.js",
+      "line": 7,
+      "rule": "command-injection",
+      "verdict": "FP",
+      "reason": "Benchmark doc script; `type` is one of three hard-coded benchmark names in the same file."
+    },
+    {
+      "package": "pino",
+      "file": "benchmarks/utils/wrap-log-level.js",
+      "line": 18,
+      "rule": "dynamic-eval",
+      "verdict": "FP",
+      "reason": "Benchmark helper that compiles a fixed file from node_modules (loglevel.js) in a vm sandbox; no external input."
+    },
+    {
+      "package": "pino",
+      "file": "test/browser-redaction.test.js",
+      "line": 40,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "Dummy values ('sensitive', 'secret123') used to test log redaction."
+    },
+    {
+      "package": "pino",
+      "file": "test/browser-redaction.test.js",
+      "line": 56,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "Dummy values ('sensitive', 'secret123') used to test log redaction."
+    },
+    {
+      "package": "pino",
+      "file": "test/browser-redaction.test.js",
+      "line": 164,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "Dummy values ('sensitive', 'secret123') used to test log redaction."
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/default-exit.js",
+      "line": 4,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/destination-exit.js",
+      "line": 4,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/pretty/null-prototype.js",
+      "line": 4,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/stdout-hack-protection.js",
+      "line": 10,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/syncfalse-child.js",
+      "line": 4,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/syncfalse-exit.js",
+      "line": 4,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/syncfalse-flush-exit.js",
+      "line": 4,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/fixtures/syncfalse.js",
+      "line": 4,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+    },
+    {
+      "package": "pino",
+      "file": "test/smoke.js",
+      "line": 16,
+      "rule": "command-injection",
+      "verdict": "FP",
+      "reason": "Test helper; every command is assembled inside the test from temp paths and process.execPath."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12359,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12378,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12452,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12491,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12536,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12604,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12627,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 12641,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 13672,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 15179,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 18601,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 18604,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "index.mjs",
+      "line": 18607,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "internal/experimental-cli-worker.mjs",
+      "line": 2641,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "internal/experimental-cli.mjs",
+      "line": 4907,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "internal/experimental-cli.mjs",
+      "line": 10274,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+    },
+    {
+      "package": "prettier",
+      "file": "internal/experimental-cli.mjs",
+      "line": 5227,
+      "rule": "weak-hash",
+      "verdict": "FP",
+      "reason": "SHA-1 used for cache keys (sha1hex / sha1base64), not for security."
+    },
+    {
+      "package": "prettier",
+      "file": "internal/experimental-cli.mjs",
+      "line": 5230,
+      "rule": "weak-hash",
+      "verdict": "FP",
+      "reason": "SHA-1 used for cache keys (sha1hex / sha1base64), not for security."
+    },
+    {
+      "package": "prettier",
+      "file": "plugins/flow.js",
+      "line": 1,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "An 'AKIA…' run inside a base64-encoded WASM data: URI. (Only the baseline reports this; token patterns now require a token boundary.)"
+    },
+    {
+      "package": "prettier",
+      "file": "plugins/flow.mjs",
+      "line": 1,
+      "rule": "hardcoded-secret",
+      "verdict": "FP",
+      "reason": "An 'AKIA…' run inside a base64-encoded WASM data: URI. (Only the baseline reports this; token patterns now require a token boundary.)"
+    },
+    {
+      "package": "ws",
+      "file": "lib/websocket-server.js",
+      "line": 387,
+      "rule": "weak-hash",
+      "verdict": "FP",
+      "reason": "SHA-1 of Sec-WebSocket-Key + GUID, which RFC 6455 requires for the handshake; not a security choice by the package."
+    },
+    {
+      "package": "ws",
+      "file": "lib/websocket.js",
+      "line": 956,
+      "rule": "weak-hash",
+      "verdict": "FP",
+      "reason": "SHA-1 of Sec-WebSocket-Key + GUID, which RFC 6455 requires for the handshake; not a security choice by the package. (Hidden in the baseline because the analyzer crashed on this file.)"
+    },
+    {
+      "package": "yaml",
+      "file": "dist/cli.mjs",
+      "line": 124,
+      "rule": "dynamic-require",
+      "verdict": "FP",
+      "reason": "The CLI's --visit option imports a visitor module the user names on the command line; intended."
+    }
+  ]
+}

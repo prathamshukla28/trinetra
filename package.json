@@ -26,6 +26,7 @@
     "lint": "eslint .",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
+    "bench": "node bench/fetch-corpus.mjs && node bench/run.mjs",
     "prepublishOnly": "npm run lint && node --test test/*.test.js"
   },
   "keywords": [

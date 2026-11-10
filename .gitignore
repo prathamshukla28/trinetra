@@ -20,3 +20,6 @@ coverage/
 *.tgz
 .DS_Store
 .env
+
+# benchmark corpus fetched by bench/fetch-corpus.mjs (untrusted, pinned) and generated fixtures
+bench/corpus/

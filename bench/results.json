@@ -1,0 +1,2086 @@
+{
+  "benchmark": "trinetra-accuracy",
+  "analyzer": "src/analysis/js-ast.js + src/binary",
+  "baseline": {
+    "analyzer": "js-ast.js at commit 41004e1 (before benchmark-driven fixes)",
+    "crashes": {
+      "synthetic": 1,
+      "nodegoat": 2,
+      "packages": 3
+    },
+    "binaryBefore": {
+      "note": "Mach-O agreement on the same host before the two parser fixes (7 clang fixtures then; the exec-stack fixture was added afterwards).",
+      "macho": {
+        "imports": [
+          316,
+          319
+        ],
+        "archs": [
+          175,
+          176
+        ]
+      },
+      "fixed": [
+        "x86_64h slices were reported as x86_64 (cpusubtype 8 ignored), so a 3-slice fat binary listed x86_64 twice",
+        "chained-fixup entries with lib ordinal -3 (weak-definition coalescing of symbols the binary defines itself, e.g. C++ typeinfo) were counted as imports"
+      ]
+    }
+  },
+  "js": {
+    "rules": [
+      "command-injection",
+      "dom-xss",
+      "dynamic-eval",
+      "dynamic-require",
+      "hardcoded-secret",
+      "insecure-random",
+      "path-traversal",
+      "sql-injection",
+      "ssrf",
+      "weak-hash"
+    ],
+    "corpora": [
+      {
+        "name": "synthetic",
+        "title": "Synthetic labelled suite (bench/js)",
+        "labelsInSync": true,
+        "labelCount": 118,
+        "byKind": {
+          "fn-expected": {
+            "labels": 26,
+            "positives": 26,
+            "negatives": 0
+          },
+          "tn": {
+            "labels": 52,
+            "positives": 0,
+            "negatives": 52
+          },
+          "tp": {
+            "labels": 40,
+            "positives": 40,
+            "negatives": 0
+          }
+        },
+        "files": 30,
+        "parsed": 30,
+        "parseFailures": [],
+        "crashes": [],
+        "findings": 46,
+        "perRule": {
+          "command-injection": {
+            "tp": 5,
+            "fp": 0,
+            "fn": 3,
+            "precision": 1,
+            "recall": 0.625,
+            "f1": 0.7692307692307693
+          },
+          "dom-xss": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 3,
+            "precision": 1,
+            "recall": 0.5714285714285714,
+            "f1": 0.7272727272727273
+          },
+          "dynamic-eval": {
+            "tp": 5,
+            "fp": 0,
+            "fn": 4,
+            "precision": 1,
+            "recall": 0.5555555555555556,
+            "f1": 0.7142857142857143
+          },
+          "dynamic-require": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 2,
+            "precision": 0.75,
+            "recall": 0.6,
+            "f1": 0.6666666666666665
+          },
+          "hardcoded-secret": {
+            "tp": 7,
+            "fp": 0,
+            "fn": 3,
+            "precision": 1,
+            "recall": 0.7,
+            "f1": 0.8235294117647058
+          },
+          "insecure-random": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 2,
+            "precision": 0.75,
+            "recall": 0.6,
+            "f1": 0.6666666666666665
+          },
+          "path-traversal": {
+            "tp": 4,
+            "fp": 1,
+            "fn": 2,
+            "precision": 0.8,
+            "recall": 0.6666666666666666,
+            "f1": 0.7272727272727272
+          },
+          "sql-injection": {
+            "tp": 4,
+            "fp": 0,
+            "fn": 2,
+            "precision": 1,
+            "recall": 0.6666666666666666,
+            "f1": 0.8
+          },
+          "ssrf": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 3,
+            "precision": 0.75,
+            "recall": 0.5,
+            "f1": 0.6
+          },
+          "weak-hash": {
+            "tp": 3,
+            "fp": 1,
+            "fn": 1,
+            "precision": 0.75,
+            "recall": 0.75,
+            "f1": 0.75
+          }
+        },
+        "total": {
+          "tp": 41,
+          "fp": 5,
+          "fn": 25,
+          "precision": 0.8913043478260869,
+          "recall": 0.6212121212121212,
+          "f1": 0.7321428571428572
+        },
+        "falsePositives": [
+          {
+            "file": "dynamic-require/tn/fixed-paths.js",
+            "line": 15,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return require(LOCALES[req.query.lang] ?? \"./en.js\"); // ok: dynamic-require (allow-list lookup)",
+            "basis": "label",
+            "reason": "allow-list lookup"
+          },
+          {
+            "file": "insecure-random/tn/non-security.js",
+            "line": 10,
+            "rule": "insecure-random",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return 2 ** attempt * 100 + Math.random() * 50; // ok: insecure-random (backoff jitter in an auth-named function)",
+            "basis": "label",
+            "reason": "backoff jitter in an auth-named function"
+          },
+          {
+            "file": "path-traversal/tn/sanitized-paths.js",
+            "line": 13,
+            "rule": "path-traversal",
+            "confidence": "high",
+            "taint": "req.query",
+            "evidence": "return fs.readFileSync(p); // ok: path-traversal (prefix check after resolve)",
+            "basis": "label",
+            "reason": "prefix check after resolve"
+          },
+          {
+            "file": "ssrf/tn/fixed-hosts.js",
+            "line": 25,
+            "rule": "ssrf",
+            "confidence": "high",
+            "taint": "req.query",
+            "evidence": "return fetch(u); // ok: ssrf (hostname checked against an allow-list)",
+            "basis": "label",
+            "reason": "hostname checked against an allow-list"
+          },
+          {
+            "file": "weak-hash/tn/strong-or-non-security.js",
+            "line": 9,
+            "rule": "weak-hash",
+            "confidence": "high",
+            "taint": null,
+            "evidence": "return crypto.createHash(\"md5\").update(body).digest(\"base64\"); // ok: weak-hash (HTTP ETag cache validator, not security)",
+            "basis": "label",
+            "reason": "HTTP ETag cache validator, not security"
+          }
+        ],
+        "falseNegatives": [
+          {
+            "file": "command-injection/fn-expected/indirect-shell.js",
+            "line": 6,
+            "rule": "command-injection",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "shell passed explicitly as argv[0]"
+          },
+          {
+            "file": "command-injection/fn-expected/indirect-shell.js",
+            "line": 11,
+            "rule": "command-injection",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "shell option held in a variable"
+          },
+          {
+            "file": "command-injection/fn-expected/indirect-shell.js",
+            "line": 17,
+            "rule": "command-injection",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "exec aliased via a member read"
+          },
+          {
+            "file": "dom-xss/fn-expected/framework-sinks.jsx",
+            "line": 4,
+            "rule": "dom-xss",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "jQuery .html() is not modelled"
+          },
+          {
+            "file": "dom-xss/fn-expected/framework-sinks.jsx",
+            "line": 8,
+            "rule": "dom-xss",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "createContextualFragment is not modelled"
+          },
+          {
+            "file": "dom-xss/fn-expected/framework-sinks.jsx",
+            "line": 13,
+            "rule": "dom-xss",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "React dangerouslySetInnerHTML is not modelled"
+          },
+          {
+            "file": "dynamic-eval/fn-expected/indirect-eval.js",
+            "line": 4,
+            "rule": "dynamic-eval",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "string-form setTimeout is not modelled"
+          },
+          {
+            "file": "dynamic-eval/fn-expected/indirect-eval.js",
+            "line": 8,
+            "rule": "dynamic-eval",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "indirect eval through a sequence expression"
+          },
+          {
+            "file": "dynamic-eval/fn-expected/indirect-eval.js",
+            "line": 13,
+            "rule": "dynamic-eval",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "eval aliased to a local"
+          },
+          {
+            "file": "dynamic-eval/fn-expected/indirect-eval.js",
+            "line": 17,
+            "rule": "dynamic-eval",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "globalThis.eval is not resolved"
+          },
+          {
+            "file": "dynamic-require/fn-expected/indirect-loaders.js",
+            "line": 6,
+            "rule": "dynamic-require",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "createRequire result is not tracked"
+          },
+          {
+            "file": "dynamic-require/fn-expected/indirect-loaders.js",
+            "line": 10,
+            "rule": "dynamic-require",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "module.require is not modelled"
+          },
+          {
+            "file": "hardcoded-secret/fn-expected/unnamed-secrets.js",
+            "line": 3,
+            "rule": "hardcoded-secret",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "password embedded in a connection URL"
+          },
+          {
+            "file": "hardcoded-secret/fn-expected/unnamed-secrets.js",
+            "line": 5,
+            "rule": "hardcoded-secret",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "variable name too short to recognise"
+          },
+          {
+            "file": "hardcoded-secret/fn-expected/unnamed-secrets.js",
+            "line": 7,
+            "rule": "hardcoded-secret",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "encryption key under a name the rule does not match"
+          },
+          {
+            "file": "insecure-random/fn-expected/unnamed-tokens.js",
+            "line": 4,
+            "rule": "insecure-random",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "sensitive use only visible later"
+          },
+          {
+            "file": "insecure-random/fn-expected/unnamed-tokens.js",
+            "line": 9,
+            "rule": "insecure-random",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "cookie value, neutral names"
+          },
+          {
+            "file": "path-traversal/fn-expected/indirect-paths.js",
+            "line": 5,
+            "rule": "path-traversal",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "taint arrives through a parameter"
+          },
+          {
+            "file": "path-traversal/fn-expected/indirect-paths.js",
+            "line": 15,
+            "rule": "path-traversal",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "taint stored in an object property"
+          },
+          {
+            "file": "sql-injection/fn-expected/indirect-sql.js",
+            "line": 4,
+            "rule": "sql-injection",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "taint arrives through a parameter"
+          },
+          {
+            "file": "sql-injection/fn-expected/indirect-sql.js",
+            "line": 13,
+            "rule": "sql-injection",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "query assembled with Array.join"
+          },
+          {
+            "file": "ssrf/fn-expected/other-clients.js",
+            "line": 6,
+            "rule": "ssrf",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "needle is not a modelled client"
+          },
+          {
+            "file": "ssrf/fn-expected/other-clients.js",
+            "line": 10,
+            "rule": "ssrf",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "got is not a modelled client"
+          },
+          {
+            "file": "ssrf/fn-expected/other-clients.js",
+            "line": 14,
+            "rule": "ssrf",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "taint arrives through a parameter"
+          },
+          {
+            "file": "weak-hash/fn-expected/indirect-alg.js",
+            "line": 12,
+            "rule": "weak-hash",
+            "expected": true,
+            "kind": "fn-expected",
+            "note": "the md5 npm package"
+          }
+        ],
+        "baseline": {
+          "perRule": {
+            "command-injection": {
+              "tp": 5,
+              "fp": 1,
+              "fn": 3,
+              "precision": 0.8333333333333334,
+              "recall": 0.625,
+              "f1": 0.7142857142857143
+            },
+            "dom-xss": {
+              "tp": 4,
+              "fp": 2,
+              "fn": 3,
+              "precision": 0.6666666666666666,
+              "recall": 0.5714285714285714,
+              "f1": 0.6153846153846153
+            },
+            "dynamic-eval": {
+              "tp": 5,
+              "fp": 1,
+              "fn": 4,
+              "precision": 0.8333333333333334,
+              "recall": 0.5555555555555556,
+              "f1": 0.6666666666666667
+            },
+            "dynamic-require": {
+              "tp": 3,
+              "fp": 3,
+              "fn": 2,
+              "precision": 0.5,
+              "recall": 0.6,
+              "f1": 0.5454545454545454
+            },
+            "hardcoded-secret": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1,
+              "recall": 0.7,
+              "f1": 0.8235294117647058
+            },
+            "insecure-random": {
+              "tp": 3,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.75,
+              "recall": 0.6,
+              "f1": 0.6666666666666665
+            },
+            "path-traversal": {
+              "tp": 4,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.8,
+              "recall": 0.6666666666666666,
+              "f1": 0.7272727272727272
+            },
+            "sql-injection": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1,
+              "recall": 0.5,
+              "f1": 0.6666666666666666
+            },
+            "ssrf": {
+              "tp": 3,
+              "fp": 1,
+              "fn": 3,
+              "precision": 0.75,
+              "recall": 0.5,
+              "f1": 0.6
+            },
+            "weak-hash": {
+              "tp": 2,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.6666666666666666,
+              "recall": 0.5,
+              "f1": 0.5714285714285715
+            }
+          },
+          "total": {
+            "tp": 39,
+            "fp": 11,
+            "fn": 27,
+            "precision": 0.78,
+            "recall": 0.5909090909090909,
+            "f1": 0.6724137931034482
+          }
+        }
+      },
+      {
+        "name": "nodegoat",
+        "title": "OWASP NodeGoat @ c5cb68a7084e",
+        "commit": "c5cb68a7084e4ae7dcc60e6a98768720a81841e8",
+        "files": 50,
+        "parsed": 50,
+        "parseFailures": [],
+        "crashes": [],
+        "findings": 16,
+        "perRule": {
+          "command-injection": {
+            "tp": 0,
+            "fp": 1,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          },
+          "dom-xss": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          },
+          "dynamic-eval": {
+            "tp": 3,
+            "fp": 2,
+            "fn": 0,
+            "precision": 0.6,
+            "recall": 1,
+            "f1": 0.7499999999999999
+          },
+          "dynamic-require": {
+            "tp": 0,
+            "fp": 1,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          },
+          "hardcoded-secret": {
+            "tp": 7,
+            "fp": 0,
+            "fn": 1,
+            "precision": 1,
+            "recall": 0.875,
+            "f1": 0.9333333333333333
+          },
+          "insecure-random": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "path-traversal": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "sql-injection": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "ssrf": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 1,
+            "precision": null,
+            "recall": 0,
+            "f1": 0
+          },
+          "weak-hash": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          }
+        },
+        "total": {
+          "tp": 10,
+          "fp": 6,
+          "fn": 2,
+          "precision": 0.625,
+          "recall": 0.8333333333333334,
+          "f1": 0.7142857142857143
+        },
+        "coverage": {
+          "documentedIssues": 22,
+          "inScope": 11,
+          "inScopeDetected": 9,
+          "outOfScope": [
+            {
+              "file": "app/data/allocations-dao.js",
+              "line": 78,
+              "issue": "nosql-injection"
+            },
+            {
+              "file": "app/routes/session.js",
+              "line": 64,
+              "issue": "log-injection"
+            },
+            {
+              "file": "app/data/user-dao.js",
+              "line": 25,
+              "issue": "plaintext-password-storage"
+            },
+            {
+              "file": "app/routes/session.js",
+              "line": 144,
+              "issue": "weak-password-policy"
+            },
+            {
+              "file": "server.js",
+              "line": 137,
+              "issue": "xss-autoescape-off"
+            },
+            {
+              "file": "app/routes/allocations.js",
+              "line": 16,
+              "issue": "idor"
+            },
+            {
+              "file": "server.js",
+              "line": 145,
+              "issue": "cleartext-transport"
+            },
+            {
+              "file": "app/data/profile-dao.js",
+              "line": 62,
+              "issue": "sensitive-data-plaintext"
+            },
+            {
+              "file": "app/routes/index.js",
+              "line": 55,
+              "issue": "missing-access-control"
+            },
+            {
+              "file": "app/routes/index.js",
+              "line": 72,
+              "issue": "open-redirect"
+            },
+            {
+              "file": "app/routes/profile.js",
+              "line": 59,
+              "issue": "redos"
+            }
+          ]
+        },
+        "truePositives": [
+          {
+            "file": "app/routes/contributions.js",
+            "line": 32,
+            "rule": "dynamic-eval",
+            "confidence": "high",
+            "taint": "req.body",
+            "evidence": "const preTax = eval(req.body.preTax);",
+            "basis": "label"
+          },
+          {
+            "file": "app/routes/contributions.js",
+            "line": 33,
+            "rule": "dynamic-eval",
+            "confidence": "high",
+            "taint": "req.body",
+            "evidence": "const afterTax = eval(req.body.afterTax);",
+            "basis": "label"
+          },
+          {
+            "file": "app/routes/contributions.js",
+            "line": 34,
+            "rule": "dynamic-eval",
+            "confidence": "high",
+            "taint": "req.body",
+            "evidence": "const roth = eval(req.body.roth);",
+            "basis": "label"
+          },
+          {
+            "file": "artifacts/db-reset.js",
+            "line": 18,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "\"password\": \"Admi…(redacted, 9 chars)\",",
+            "basis": "label"
+          },
+          {
+            "file": "artifacts/db-reset.js",
+            "line": 27,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "\"password\": \"User…(redacted, 9 chars)\"",
+            "basis": "label"
+          },
+          {
+            "file": "artifacts/db-reset.js",
+            "line": 35,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "\"password\": \"User…(redacted, 9 chars)\"",
+            "basis": "label"
+          },
+          {
+            "file": "config/env/all.js",
+            "line": 8,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "cookieSecret: \"sess…(redacted, 30 chars)\",",
+            "basis": "label"
+          },
+          {
+            "file": "config/env/development.js",
+            "line": 6,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "zapApiKey: \"v9dn…(redacted, 26 chars)\",",
+            "basis": "label"
+          },
+          {
+            "file": "config/env/test.js",
+            "line": 6,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "zapApiKey: \"v9dn…(redacted, 26 chars)\",",
+            "basis": "label"
+          },
+          {
+            "file": "test/security/profile-test.js",
+            "line": 37,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "var sutUserPassword = \"User…(redacted, 9 chars)\";",
+            "basis": "triage",
+            "reason": "The seeded user1 account's real password (README.md:23), repeated in a test."
+          }
+        ],
+        "falsePositives": [
+          {
+            "file": "app/assets/vendor/chart/raphael-min.js",
+            "line": 10,
+            "rule": "dom-xss",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "(function(a){var b=\"0.3.4\",c=\"hasOwnProperty\",d=/[\\.\\/]/,e=\"*\",f=function(){},g=function(a,b){return a-b},h,i,j={n:{}},k=function(a,b){var c=j,d=i,e=Array.proto",
+            "basis": "triage",
+            "reason": "Both non-literal innerHTML writes on this minified line are safe: `canvas.innerHTML=o` assigns the module's empty-string variable, and the VML text path escapes < and & before writing."
+          },
+          {
+            "file": "app/assets/vendor/html5shiv.js",
+            "line": 5,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "a.createElement=function(c){return!e.shivMethods?b.createElem(c):p(c,a,b)};a.createDocumentFragment=Function(\"h,f\",\"return function(){var n=f.cloneNode(),c=n.cr",
+            "basis": "triage",
+            "reason": "The Function() body is assembled from html5shiv's own element-name list, each name filtered through /\\w+/; no external data reaches it."
+          },
+          {
+            "file": "app/assets/vendor/jquery.min.js",
+            "line": 4,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "(function(e,t){var n,r,i=typeof t,o=e.location,a=e.document,s=a.documentElement,l=e.jQuery,u=e.$,c={},p=[],f=\"1.10.2\",d=p.concat,h=p.push,g=p.slice,m=p.indexOf,",
+            "basis": "triage",
+            "reason": "jQuery.parseJSON fallback for browsers without JSON.parse; the input must pass json2's structural validation regex before Function('return '+n)."
+          },
+          {
+            "file": "app/assets/vendor/jquery.min.js",
+            "line": 5,
+            "rule": "dom-xss",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "}({});var B=/(?:\\{[\\s\\S]*\\}|\\[[\\s\\S]*\\])$/,P=/([A-Z])/g;function R(e,n,r,i){if(x.acceptData(e)){var o,a,s=x.expando,l=e.nodeType,u=l?x.cache:e,c=l?e[s]:e[s]&&s;",
+            "basis": "triage",
+            "reason": "jQuery internals (.html(), clone, buildFragment) write caller-supplied HTML by design. The sink is real, but any vulnerability lies in the caller; this is library plumbing, not an XSS bug in NodeGoat."
+          },
+          {
+            "file": "config/config.js",
+            "line": 8,
+            "rule": "dynamic-require",
+            "confidence": "high",
+            "taint": "process.env",
+            "evidence": "const envConf = require(path.resolve(__dirname + \"/../config/env/\" + finalEnv.toLowerCase() + \".js\")) || {};",
+            "basis": "triage",
+            "reason": "Selects a config file by NODE_ENV, which the operator sets; not attacker input."
+          },
+          {
+            "file": "Gruntfile.js",
+            "line": 165,
+            "rule": "command-injection",
+            "confidence": "high",
+            "taint": "process.env",
+            "evidence": "exec(",
+            "basis": "triage",
+            "reason": "Developer-run Grunt task; the command is built from NODE_ENV or the task argument, which an attacker does not control."
+          }
+        ],
+        "falseNegatives": [
+          {
+            "file": "app/routes/research.js",
+            "line": 16,
+            "rule": "ssrf",
+            "expected": true,
+            "source": "app/views/tutorial/ssrf.html (needle.get of req.query.url + req.query.symbol)"
+          },
+          {
+            "file": "config/env/all.js",
+            "line": 9,
+            "rule": "hardcoded-secret",
+            "expected": true,
+            "source": "code-verified: hardcoded AES key `cryptoKey`; app/views/tutorial/a6.html shows it as the key for the sensitive-data encryption fix (referenced only from commented-out code at this commit)"
+          }
+        ],
+        "untriaged": [],
+        "staleTriage": [
+          {
+            "file": "config/config.js",
+            "line": 7,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "The path is __dirname plus a literal, fixed when the code is written. (Only the baseline reports this; constant folding removed it.)"
+          }
+        ],
+        "baseline": {
+          "perRule": {
+            "command-injection": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            },
+            "dom-xss": {
+              "tp": 0,
+              "fp": 2,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            },
+            "dynamic-eval": {
+              "tp": 3,
+              "fp": 2,
+              "fn": 0,
+              "precision": 0.6,
+              "recall": 1,
+              "f1": 0.7499999999999999
+            },
+            "dynamic-require": {
+              "tp": 0,
+              "fp": 2,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            },
+            "hardcoded-secret": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1,
+              "recall": 0.875,
+              "f1": 0.9333333333333333
+            },
+            "insecure-random": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "path-traversal": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "sql-injection": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "ssrf": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0,
+              "f1": 0
+            },
+            "weak-hash": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            }
+          },
+          "total": {
+            "tp": 10,
+            "fp": 7,
+            "fn": 2,
+            "precision": 0.5882352941176471,
+            "recall": 0.8333333333333334,
+            "f1": 0.6896551724137931
+          }
+        },
+        "baselineUntriaged": []
+      },
+      {
+        "name": "packages",
+        "title": "Popular packages in node_modules (false-positive check)",
+        "packages": [
+          {
+            "name": "acorn",
+            "recorded": "8.19.0",
+            "installed": "8.19.0",
+            "versionMatches": true,
+            "files": 3,
+            "lines": 12804,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "ajv",
+            "recorded": "8.20.0",
+            "installed": "8.20.0",
+            "versionMatches": true,
+            "files": 106,
+            "lines": 7541,
+            "findings": 3,
+            "tp": 0,
+            "fp": 3
+          },
+          {
+            "name": "chalk",
+            "recorded": "4.1.2",
+            "installed": "4.1.2",
+            "versionMatches": true,
+            "files": 3,
+            "lines": 405,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "commander",
+            "recorded": "13.1.0",
+            "installed": "13.1.0",
+            "versionMatches": true,
+            "files": 8,
+            "lines": 4075,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "cross-spawn",
+            "recorded": "7.0.6",
+            "installed": "7.0.6",
+            "versionMatches": true,
+            "files": 6,
+            "lines": 317,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "debug",
+            "recorded": "4.4.3",
+            "installed": "4.4.3",
+            "versionMatches": true,
+            "files": 4,
+            "lines": 841,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "diff",
+            "recorded": "9.0.0",
+            "installed": "9.0.0",
+            "versionMatches": true,
+            "files": 45,
+            "lines": 7327,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "glob",
+            "recorded": "13.0.6",
+            "installed": "13.0.6",
+            "versionMatches": true,
+            "files": 16,
+            "lines": 2714,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "isomorphic-git",
+            "recorded": "1.38.7",
+            "installed": "1.38.7",
+            "versionMatches": true,
+            "files": 15,
+            "lines": 50106,
+            "findings": 4,
+            "tp": 0,
+            "fp": 4
+          },
+          {
+            "name": "jose",
+            "recorded": "6.2.13",
+            "installed": "6.2.13",
+            "versionMatches": true,
+            "files": 46,
+            "lines": 2793,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "js-yaml",
+            "recorded": "4.3.2",
+            "installed": "4.3.2",
+            "versionMatches": true,
+            "files": 30,
+            "lines": 10187,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "minimatch",
+            "recorded": "10.2.6",
+            "installed": "10.2.6",
+            "versionMatches": true,
+            "files": 12,
+            "lines": 4375,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "pino",
+            "recorded": "10.4.0",
+            "installed": "10.4.0",
+            "versionMatches": true,
+            "files": 140,
+            "lines": 16970,
+            "findings": 6,
+            "tp": 0,
+            "fp": 6
+          },
+          {
+            "name": "prettier",
+            "recorded": "3.9.10",
+            "installed": "3.9.10",
+            "versionMatches": true,
+            "files": 36,
+            "lines": 46484,
+            "findings": 18,
+            "tp": 0,
+            "fp": 18
+          },
+          {
+            "name": "semver",
+            "recorded": "7.8.5",
+            "installed": "7.8.5",
+            "versionMatches": true,
+            "files": 49,
+            "lines": 2697,
+            "findings": 0,
+            "tp": 0,
+            "fp": 0
+          },
+          {
+            "name": "ws",
+            "recorded": "8.21.0",
+            "installed": "8.21.0",
+            "versionMatches": true,
+            "files": 16,
+            "lines": 5006,
+            "findings": 2,
+            "tp": 0,
+            "fp": 2
+          },
+          {
+            "name": "yaml",
+            "recorded": "2.9.0",
+            "installed": "2.9.0",
+            "versionMatches": true,
+            "files": 151,
+            "lines": 16394,
+            "findings": 1,
+            "tp": 0,
+            "fp": 1
+          }
+        ],
+        "files": 686,
+        "lines": 191036,
+        "findings": 34,
+        "crashes": [],
+        "parseFailures": [
+          "pino/test/fixtures/syntax-error-esm.mjs"
+        ],
+        "perRule": {
+          "command-injection": {
+            "tp": 0,
+            "fp": 2,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          },
+          "dom-xss": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "dynamic-eval": {
+            "tp": 0,
+            "fp": 6,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          },
+          "dynamic-require": {
+            "tp": 0,
+            "fp": 9,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          },
+          "hardcoded-secret": {
+            "tp": 0,
+            "fp": 11,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          },
+          "insecure-random": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "path-traversal": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "sql-injection": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "ssrf": {
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+            "precision": null,
+            "recall": null,
+            "f1": null
+          },
+          "weak-hash": {
+            "tp": 0,
+            "fp": 6,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          }
+        },
+        "total": {
+          "tp": 0,
+          "fp": 34,
+          "fn": 0,
+          "precision": 0,
+          "recall": null,
+          "f1": 0
+        },
+        "truePositives": [],
+        "falsePositives": [
+          {
+            "file": "ajv/dist/compile/index.js",
+            "line": 89,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const makeValidate = new Function(`${names_1.default.self}`, `${names_1.default.scope}`, sourceCode);",
+            "basis": "triage",
+            "reason": "Ajv compiles generated validator code with new Function by design. The source is generated from schemas, which Ajv's docs say must be trusted, so the sink is real but this is not a vulnerability in the package."
+          },
+          {
+            "file": "ajv/dist/compile/jtd/parse.js",
+            "line": 50,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const makeParse = new Function(`${names_1.default.scope}`, sourceCode);",
+            "basis": "triage",
+            "reason": "Ajv compiles generated validator code with new Function by design. The source is generated from schemas, which Ajv's docs say must be trusted, so the sink is real but this is not a vulnerability in the package."
+          },
+          {
+            "file": "ajv/dist/compile/jtd/serialize.js",
+            "line": 50,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const makeSerialize = new Function(`${names_1.default.scope}`, sourceCode);",
+            "basis": "triage",
+            "reason": "Ajv compiles generated validator code with new Function by design. The source is generated from schemas, which Ajv's docs say must be trusted, so the sink is real but this is not a vulnerability in the package."
+          },
+          {
+            "file": "isomorphic-git/index.cjs",
+            "line": 3476,
+            "rule": "weak-hash",
+            "confidence": "high",
+            "taint": null,
+            "evidence": "const hash = crypto$1.createHash('sha1');",
+            "basis": "triage",
+            "reason": "SHA-1 computes git object IDs, as the git object format requires; not a security choice by the package."
+          },
+          {
+            "file": "isomorphic-git/index.umd.min.js",
+            "line": 2,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "!function(t,e){\"object\"==typeof exports&&\"object\"==typeof module?module.exports=e():\"function\"==typeof define&&define.amd?define([],e):\"object\"==typeof exports?",
+            "basis": "triage",
+            "reason": "function-bind polyfill: the Function() body is built from generated parameter names ($0, $1, …); no external data reaches it."
+          },
+          {
+            "file": "isomorphic-git/managers/index.cjs",
+            "line": 4217,
+            "rule": "weak-hash",
+            "confidence": "high",
+            "taint": null,
+            "evidence": "const hash = crypto$1.createHash('sha1');",
+            "basis": "triage",
+            "reason": "SHA-1 computes git object IDs, as the git object format requires; not a security choice by the package."
+          },
+          {
+            "file": "isomorphic-git/managers/index.umd.min.js",
+            "line": 2,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "!function(t,e){\"object\"==typeof exports&&\"object\"==typeof module?module.exports=e():\"function\"==typeof define&&define.amd?define([],e):\"object\"==typeof exports?",
+            "basis": "triage",
+            "reason": "function-bind polyfill: the Function() body is built from generated parameter names ($0, $1, …); no external data reaches it."
+          },
+          {
+            "file": "pino/benchmarks/utils/generate-benchmark-doc.js",
+            "line": 7,
+            "rule": "command-injection",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return execSync(`node ${join(__dirname, 'runbench')} ${type} -q`)",
+            "basis": "triage",
+            "reason": "Benchmark doc script; `type` is one of three hard-coded benchmark names in the same file."
+          },
+          {
+            "file": "pino/benchmarks/utils/wrap-log-level.js",
+            "line": 18,
+            "rule": "dynamic-eval",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const script = new vm.Script(code)",
+            "basis": "triage",
+            "reason": "Benchmark helper that compiles a fixed file from node_modules (loglevel.js) in a vm sandbox; no external input."
+          },
+          {
+            "file": "pino/test/browser-redaction.test.js",
+            "line": 40,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "instance.info({ secret: 'sens…(redacted, 9 chars)', visible: 'data' })",
+            "basis": "triage",
+            "reason": "Dummy values ('sensitive', 'secret123') used to test log redaction."
+          },
+          {
+            "file": "pino/test/browser-redaction.test.js",
+            "line": 56,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "instance.info({ user: { name: 'alice', password: 'secr…(redacted, 9 chars)' } })",
+            "basis": "triage",
+            "reason": "Dummy values ('sensitive', 'secret123') used to test log redaction."
+          },
+          {
+            "file": "pino/test/browser-redaction.test.js",
+            "line": 164,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "instance.info({ 'api-key': 'sens…(redacted, 9 chars)', name: 'test' })",
+            "basis": "triage",
+            "reason": "Dummy values ('sensitive', 'secret123') used to test log redaction."
+          },
+          {
+            "file": "pino/test/smoke.js",
+            "line": 16,
+            "rule": "command-injection",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return execSync(command, { cwd, stdio: 'pipe', encoding: 'utf8' })",
+            "basis": "triage",
+            "reason": "Test helper; every command is assembled inside the test from temp paths and process.execPath."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12359,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "nextLastSignificantToken = \"?Non…(redacted, 22 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12378,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "lastSignificantToken = \"?Int…(redacted, 24 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12452,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "nextLastSignificantToken = \"?Non…(redacted, 26 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12491,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "lastSignificantToken = \"?Int…(redacted, 24 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12536,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "nextLastSignificantToken = \"?Int…(redacted, 19 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12604,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "lastSignificantToken = \"?Int…(redacted, 19 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12627,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "lastSignificantToken = \"?NoL…(redacted, 21 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 12641,
+            "rule": "hardcoded-secret",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "lastSignificantToken = \"?NoL…(redacted, 21 chars)\";",
+            "basis": "triage",
+            "reason": "`lastSignificantToken` holds a parser token kind (e.g. \"?NonExpressionParenEnd\"). The name matches /token/, but the value is not a credential."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 13672,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const module = await import(pathToFileURL2(file).href);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 15179,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return import(url3);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 18601,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return import(name);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 18604,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return import(pathToFileURL5(name).href);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "prettier/index.mjs",
+            "line": 18607,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "return await import(pathToFileURL5(path15.resolve(name)).href);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "prettier/internal/experimental-cli-worker.mjs",
+            "line": 2641,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const moduleExports = await import(url.pathToFileURL(modulePath).href);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "prettier/internal/experimental-cli.mjs",
+            "line": 4907,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const moduleExports = await import(url.pathToFileURL(modulePath).href);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "prettier/internal/experimental-cli.mjs",
+            "line": 5227,
+            "rule": "weak-hash",
+            "confidence": "high",
+            "taint": null,
+            "evidence": "return crypto.createHash(\"sha1\").update(value).digest(\"hex\");",
+            "basis": "triage",
+            "reason": "SHA-1 used for cache keys (sha1hex / sha1base64), not for security."
+          },
+          {
+            "file": "prettier/internal/experimental-cli.mjs",
+            "line": 5230,
+            "rule": "weak-hash",
+            "confidence": "high",
+            "taint": null,
+            "evidence": "return crypto.createHash(\"sha1\").update(value).digest(\"base64\");",
+            "basis": "triage",
+            "reason": "SHA-1 used for cache keys (sha1hex / sha1base64), not for security."
+          },
+          {
+            "file": "prettier/internal/experimental-cli.mjs",
+            "line": 10274,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "const module = await import(url2.pathToFileURL(filePath).href);",
+            "basis": "triage",
+            "reason": "Loads config files and plugins the user configured. Plugin loading is intended and stays inside the CLI's trust boundary."
+          },
+          {
+            "file": "ws/lib/websocket-server.js",
+            "line": 387,
+            "rule": "weak-hash",
+            "confidence": "high",
+            "taint": null,
+            "evidence": "const digest = createHash('sha1')",
+            "basis": "triage",
+            "reason": "SHA-1 of Sec-WebSocket-Key + GUID, which RFC 6455 requires for the handshake; not a security choice by the package."
+          },
+          {
+            "file": "ws/lib/websocket.js",
+            "line": 956,
+            "rule": "weak-hash",
+            "confidence": "high",
+            "taint": null,
+            "evidence": "const digest = createHash('sha1')",
+            "basis": "triage",
+            "reason": "SHA-1 of Sec-WebSocket-Key + GUID, which RFC 6455 requires for the handshake; not a security choice by the package. (Hidden in the baseline because the analyzer crashed on this file.)"
+          },
+          {
+            "file": "yaml/dist/cli.mjs",
+            "line": 124,
+            "rule": "dynamic-require",
+            "confidence": "medium",
+            "taint": null,
+            "evidence": "? (await import(resolve(opt.visit))).default",
+            "basis": "triage",
+            "reason": "The CLI's --visit option imports a visitor module the user names on the command line; intended."
+          }
+        ],
+        "untriaged": [],
+        "staleTriage": [
+          {
+            "package": "jose",
+            "file": "jose/dist/webapi/key/import.js",
+            "line": 18,
+            "rule": "hardcoded-secret",
+            "verdict": "FP",
+            "reason": "A bare PEM header used as a format-check prefix, with no key material. (Only the baseline reports this; the PEM pattern now requires key material.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/default-exit.js",
+            "line": 4,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/destination-exit.js",
+            "line": 4,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/pretty/null-prototype.js",
+            "line": 4,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/stdout-hack-protection.js",
+            "line": 10,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/syncfalse-child.js",
+            "line": 4,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/syncfalse-exit.js",
+            "line": 4,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/syncfalse-flush-exit.js",
+            "line": 4,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "pino",
+            "file": "pino/test/fixtures/syncfalse.js",
+            "line": 4,
+            "rule": "dynamic-require",
+            "verdict": "FP",
+            "reason": "require(require.resolve('<literal>')) is a literal path. (Only the baseline reports this; constant folding removed it.)"
+          },
+          {
+            "package": "prettier",
+            "file": "prettier/plugins/flow.js",
+            "line": 1,
+            "rule": "hardcoded-secret",
+            "verdict": "FP",
+            "reason": "An 'AKIA…' run inside a base64-encoded WASM data: URI. (Only the baseline reports this; token patterns now require a token boundary.)"
+          },
+          {
+            "package": "prettier",
+            "file": "prettier/plugins/flow.mjs",
+            "line": 1,
+            "rule": "hardcoded-secret",
+            "verdict": "FP",
+            "reason": "An 'AKIA…' run inside a base64-encoded WASM data: URI. (Only the baseline reports this; token patterns now require a token boundary.)"
+          }
+        ],
+        "baseline": {
+          "perRule": {
+            "command-injection": {
+              "tp": 0,
+              "fp": 2,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            },
+            "dom-xss": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "dynamic-eval": {
+              "tp": 0,
+              "fp": 6,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            },
+            "dynamic-require": {
+              "tp": 0,
+              "fp": 17,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            },
+            "hardcoded-secret": {
+              "tp": 0,
+              "fp": 14,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            },
+            "insecure-random": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "path-traversal": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "sql-injection": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "ssrf": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 0,
+              "precision": null,
+              "recall": null,
+              "f1": null
+            },
+            "weak-hash": {
+              "tp": 0,
+              "fp": 5,
+              "fn": 0,
+              "precision": 0,
+              "recall": null,
+              "f1": 0
+            }
+          },
+          "total": {
+            "tp": 0,
+            "fp": 44,
+            "fn": 0,
+            "precision": 0,
+            "recall": null,
+            "f1": 0
+          }
+        },
+        "baselineUntriaged": []
+      }
+    ],
+    "overall": {
+      "perRule": {
+        "command-injection": {
+          "tp": 5,
+          "fp": 3,
+          "fn": 3,
+          "precision": 0.625,
+          "recall": 0.625,
+          "f1": 0.625
+        },
+        "dom-xss": {
+          "tp": 4,
+          "fp": 2,
+          "fn": 3,
+          "precision": 0.6666666666666666,
+          "recall": 0.5714285714285714,
+          "f1": 0.6153846153846153
+        },
+        "dynamic-eval": {
+          "tp": 8,
+          "fp": 8,
+          "fn": 4,
+          "precision": 0.5,
+          "recall": 0.6666666666666666,
+          "f1": 0.5714285714285715
+        },
+        "dynamic-require": {
+          "tp": 3,
+          "fp": 11,
+          "fn": 2,
+          "precision": 0.21428571428571427,
+          "recall": 0.6,
+          "f1": 0.3157894736842105
+        },
+        "hardcoded-secret": {
+          "tp": 14,
+          "fp": 11,
+          "fn": 4,
+          "precision": 0.56,
+          "recall": 0.7777777777777778,
+          "f1": 0.6511627906976745
+        },
+        "insecure-random": {
+          "tp": 3,
+          "fp": 1,
+          "fn": 2,
+          "precision": 0.75,
+          "recall": 0.6,
+          "f1": 0.6666666666666665
+        },
+        "path-traversal": {
+          "tp": 4,
+          "fp": 1,
+          "fn": 2,
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272
+        },
+        "sql-injection": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 2,
+          "precision": 1,
+          "recall": 0.6666666666666666,
+          "f1": 0.8
+        },
+        "ssrf": {
+          "tp": 3,
+          "fp": 1,
+          "fn": 4,
+          "precision": 0.75,
+          "recall": 0.42857142857142855,
+          "f1": 0.5454545454545454
+        },
+        "weak-hash": {
+          "tp": 3,
+          "fp": 7,
+          "fn": 1,
+          "precision": 0.3,
+          "recall": 0.75,
+          "f1": 0.4285714285714285
+        }
+      },
+      "total": {
+        "tp": 51,
+        "fp": 45,
+        "fn": 27,
+        "precision": 0.53125,
+        "recall": 0.6538461538461539,
+        "f1": 0.5862068965517242
+      }
+    },
+    "baselineOverall": {
+      "perRule": {
+        "command-injection": {
+          "tp": 5,
+          "fp": 4,
+          "fn": 3,
+          "precision": 0.5555555555555556,
+          "recall": 0.625,
+          "f1": 0.5882352941176471
+        },
+        "dom-xss": {
+          "tp": 4,
+          "fp": 4,
+          "fn": 3,
+          "precision": 0.5,
+          "recall": 0.5714285714285714,
+          "f1": 0.5333333333333333
+        },
+        "dynamic-eval": {
+          "tp": 8,
+          "fp": 9,
+          "fn": 4,
+          "precision": 0.47058823529411764,
+          "recall": 0.6666666666666666,
+          "f1": 0.5517241379310345
+        },
+        "dynamic-require": {
+          "tp": 3,
+          "fp": 22,
+          "fn": 2,
+          "precision": 0.12,
+          "recall": 0.6,
+          "f1": 0.19999999999999998
+        },
+        "hardcoded-secret": {
+          "tp": 14,
+          "fp": 14,
+          "fn": 4,
+          "precision": 0.5,
+          "recall": 0.7777777777777778,
+          "f1": 0.6086956521739131
+        },
+        "insecure-random": {
+          "tp": 3,
+          "fp": 1,
+          "fn": 2,
+          "precision": 0.75,
+          "recall": 0.6,
+          "f1": 0.6666666666666665
+        },
+        "path-traversal": {
+          "tp": 4,
+          "fp": 1,
+          "fn": 2,
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272
+        },
+        "sql-injection": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 3,
+          "precision": 1,
+          "recall": 0.5,
+          "f1": 0.6666666666666666
+        },
+        "ssrf": {
+          "tp": 3,
+          "fp": 1,
+          "fn": 4,
+          "precision": 0.75,
+          "recall": 0.42857142857142855,
+          "f1": 0.5454545454545454
+        },
+        "weak-hash": {
+          "tp": 2,
+          "fp": 6,
+          "fn": 2,
+          "precision": 0.25,
+          "recall": 0.5,
+          "f1": 0.3333333333333333
+        }
+      },
+      "total": {
+        "tp": 49,
+        "fp": 62,
+        "fn": 29,
+        "precision": 0.44144144144144143,
+        "recall": 0.6282051282051282,
+        "f1": 0.5185185185185185
+      }
+    }
+  },
+  "binary": {
+    "platform": "macOS 26.2 (25C56), arm64",
+    "macho": {
+      "binaries": 177,
+      "slices": 320,
+      "groups": {
+        "/bin": 37,
+        "/usr/bin (stride)": 80,
+        "/usr/sbin (stride)": 20,
+        "/opt/homebrew/bin (stride)": 25,
+        "/Applications": 6,
+        "node (process.execPath)": 1,
+        "generated fixtures (clang)": 8
+      },
+      "positivesInOracle": {
+        "pie": 318,
+        "canary": 242,
+        "signed": 317,
+        "adhoc": 30,
+        "hardenedRuntime": 19,
+        "platformBinary": 278,
+        "execStack": 1
+      },
+      "perCheck": {
+        "executable": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "pie": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "execStack": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "canary": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "imports": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "signed": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "adhoc": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "hardenedRuntime": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "platformBinary": {
+          "agree": 320,
+          "total": 320,
+          "rate": 1
+        },
+        "archs": {
+          "agree": 177,
+          "total": 177,
+          "rate": 1
+        }
+      },
+      "disagreements": [],
+      "errors": []
+    },
+    "elf": {
+      "binaries": 10,
+      "perCheck": {
+        "pie": {
+          "agree": 9,
+          "total": 10,
+          "rate": 0.9
+        },
+        "static": {
+          "agree": 10,
+          "total": 10,
+          "rate": 1
+        },
+        "nx": {
+          "agree": 10,
+          "total": 10,
+          "rate": 1
+        },
+        "relro": {
+          "agree": 10,
+          "total": 10,
+          "rate": 1
+        },
+        "canary": {
+          "agree": 10,
+          "total": 10,
+          "rate": 1
+        },
+        "imports": {
+          "agree": 10,
+          "total": 10,
+          "rate": 1
+        },
+        "runpath": {
+          "agree": 10,
+          "total": 10,
+          "rate": 1
+        }
+      },
+      "disagreements": [
+        {
+          "file": "bench/corpus/fixtures/elf/elf-builder-et-dyn-no-pie-flag",
+          "check": "pie",
+          "truth": false,
+          "trinetra": true
+        }
+      ],
+      "files": [
+        "bench/corpus/fixtures/elf/go-linux-amd64-exe",
+        "bench/corpus/fixtures/elf/go-linux-amd64-pie",
+        "bench/corpus/fixtures/elf/go-linux-arm64-exe",
+        "bench/corpus/fixtures/elf/go-linux-arm64-pie",
+        "bench/corpus/fixtures/elf/go-linux-386-exe",
+        "bench/corpus/fixtures/elf/elf-builder-hardened",
+        "bench/corpus/fixtures/elf/elf-builder-weak",
+        "bench/corpus/fixtures/elf/elf-builder-partial-relro",
+        "bench/corpus/fixtures/elf/elf-builder-no-gnu-stack",
+        "bench/corpus/fixtures/elf/elf-builder-et-dyn-no-pie-flag"
+      ]
+    },
+    "notes": []
+  }
+}

@@ -1,0 +1,907 @@
+[
+  {
+    "file": "command-injection/fn-expected/indirect-shell.js",
+    "line": 6,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "shell passed explicitly as argv[0]"
+  },
+  {
+    "file": "command-injection/fn-expected/indirect-shell.js",
+    "line": 11,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "shell option held in a variable"
+  },
+  {
+    "file": "command-injection/fn-expected/indirect-shell.js",
+    "line": 17,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "exec aliased via a member read"
+  },
+  {
+    "file": "command-injection/tn/no-shell.js",
+    "line": 5,
+    "rule": "command-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "args array, no shell"
+  },
+  {
+    "file": "command-injection/tn/no-shell.js",
+    "line": 9,
+    "rule": "command-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "execFile, no shell"
+  },
+  {
+    "file": "command-injection/tn/no-shell.js",
+    "line": 13,
+    "rule": "command-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "literal command"
+  },
+  {
+    "file": "command-injection/tn/no-shell.js",
+    "line": 17,
+    "rule": "command-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "shell explicitly off"
+  },
+  {
+    "file": "command-injection/tn/no-shell.js",
+    "line": 22,
+    "rule": "command-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "RegExp.prototype.exec"
+  },
+  {
+    "file": "command-injection/tn/no-shell.js",
+    "line": 27,
+    "rule": "command-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "constant held in a const binding"
+  },
+  {
+    "file": "command-injection/tn/no-shell.js",
+    "line": 33,
+    "rule": "command-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "an unrelated method named exec"
+  },
+  {
+    "file": "command-injection/tp/shell-strings.js",
+    "line": 6,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "command-injection/tp/shell-strings.js",
+    "line": 11,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "command-injection/tp/shell-strings.js",
+    "line": 17,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "command-injection/tp/shell-strings.js",
+    "line": 21,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "command-injection/tp/shell-strings.js",
+    "line": 25,
+    "rule": "command-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dom-xss/fn-expected/framework-sinks.jsx",
+    "line": 4,
+    "rule": "dom-xss",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "jQuery .html() is not modelled"
+  },
+  {
+    "file": "dom-xss/fn-expected/framework-sinks.jsx",
+    "line": 8,
+    "rule": "dom-xss",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "createContextualFragment is not modelled"
+  },
+  {
+    "file": "dom-xss/fn-expected/framework-sinks.jsx",
+    "line": 13,
+    "rule": "dom-xss",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "React dangerouslySetInnerHTML is not modelled"
+  },
+  {
+    "file": "dom-xss/tn/safe-dom.js",
+    "line": 4,
+    "rule": "dom-xss",
+    "expected": false,
+    "kind": "tn",
+    "note": "textContent is not an HTML sink"
+  },
+  {
+    "file": "dom-xss/tn/safe-dom.js",
+    "line": 8,
+    "rule": "dom-xss",
+    "expected": false,
+    "kind": "tn",
+    "note": "static markup"
+  },
+  {
+    "file": "dom-xss/tn/safe-dom.js",
+    "line": 12,
+    "rule": "dom-xss",
+    "expected": false,
+    "kind": "tn",
+    "note": "sanitized with DOMPurify"
+  },
+  {
+    "file": "dom-xss/tn/safe-dom.js",
+    "line": 16,
+    "rule": "dom-xss",
+    "expected": false,
+    "kind": "tn",
+    "note": "clearing"
+  },
+  {
+    "file": "dom-xss/tn/safe-dom.js",
+    "line": 20,
+    "rule": "dom-xss",
+    "expected": false,
+    "kind": "tn",
+    "note": "HTML-escaped"
+  },
+  {
+    "file": "dom-xss/tp/html-sinks.js",
+    "line": 4,
+    "rule": "dom-xss",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dom-xss/tp/html-sinks.js",
+    "line": 9,
+    "rule": "dom-xss",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dom-xss/tp/html-sinks.js",
+    "line": 13,
+    "rule": "dom-xss",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dom-xss/tp/html-sinks.js",
+    "line": 17,
+    "rule": "dom-xss",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-eval/fn-expected/indirect-eval.js",
+    "line": 4,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "string-form setTimeout is not modelled"
+  },
+  {
+    "file": "dynamic-eval/fn-expected/indirect-eval.js",
+    "line": 8,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "indirect eval through a sequence expression"
+  },
+  {
+    "file": "dynamic-eval/fn-expected/indirect-eval.js",
+    "line": 13,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "eval aliased to a local"
+  },
+  {
+    "file": "dynamic-eval/fn-expected/indirect-eval.js",
+    "line": 17,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "globalThis.eval is not resolved"
+  },
+  {
+    "file": "dynamic-eval/tn/literal-and-safe.js",
+    "line": 5,
+    "rule": "dynamic-eval",
+    "expected": false,
+    "kind": "tn",
+    "note": "literal string"
+  },
+  {
+    "file": "dynamic-eval/tn/literal-and-safe.js",
+    "line": 8,
+    "rule": "dynamic-eval",
+    "expected": false,
+    "kind": "tn",
+    "note": "literal body"
+  },
+  {
+    "file": "dynamic-eval/tn/literal-and-safe.js",
+    "line": 11,
+    "rule": "dynamic-eval",
+    "expected": false,
+    "kind": "tn",
+    "note": "JSON.parse is not code execution"
+  },
+  {
+    "file": "dynamic-eval/tn/literal-and-safe.js",
+    "line": 15,
+    "rule": "dynamic-eval",
+    "expected": false,
+    "kind": "tn",
+    "note": "RegExp.prototype.exec"
+  },
+  {
+    "file": "dynamic-eval/tn/literal-and-safe.js",
+    "line": 19,
+    "rule": "dynamic-eval",
+    "expected": false,
+    "kind": "tn",
+    "note": "literal script, data only in the context"
+  },
+  {
+    "file": "dynamic-eval/tn/literal-and-safe.js",
+    "line": 24,
+    "rule": "dynamic-eval",
+    "expected": false,
+    "kind": "tn",
+    "note": "constant held in a const binding"
+  },
+  {
+    "file": "dynamic-eval/tp/request-to-eval.js",
+    "line": 5,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-eval/tp/request-to-eval.js",
+    "line": 10,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-eval/tp/request-to-eval.js",
+    "line": 16,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-eval/tp/request-to-eval.js",
+    "line": 21,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-eval/tp/request-to-eval.js",
+    "line": 25,
+    "rule": "dynamic-eval",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-require/fn-expected/indirect-loaders.js",
+    "line": 6,
+    "rule": "dynamic-require",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "createRequire result is not tracked"
+  },
+  {
+    "file": "dynamic-require/fn-expected/indirect-loaders.js",
+    "line": 10,
+    "rule": "dynamic-require",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "module.require is not modelled"
+  },
+  {
+    "file": "dynamic-require/tn/fixed-paths.js",
+    "line": 5,
+    "rule": "dynamic-require",
+    "expected": false,
+    "kind": "tn",
+    "note": "literal specifier"
+  },
+  {
+    "file": "dynamic-require/tn/fixed-paths.js",
+    "line": 8,
+    "rule": "dynamic-require",
+    "expected": false,
+    "kind": "tn",
+    "note": "fixed at authoring time"
+  },
+  {
+    "file": "dynamic-require/tn/fixed-paths.js",
+    "line": 10,
+    "rule": "dynamic-require",
+    "expected": false,
+    "kind": "tn",
+    "note": "require.resolve of a literal"
+  },
+  {
+    "file": "dynamic-require/tn/fixed-paths.js",
+    "line": 15,
+    "rule": "dynamic-require",
+    "expected": false,
+    "kind": "tn",
+    "note": "allow-list lookup"
+  },
+  {
+    "file": "dynamic-require/tp/user-chosen-module.js",
+    "line": 4,
+    "rule": "dynamic-require",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-require/tp/user-chosen-module.js",
+    "line": 8,
+    "rule": "dynamic-require",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "dynamic-require/tp/user-chosen-module.js",
+    "line": 14,
+    "rule": "dynamic-require",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "hardcoded-secret/fn-expected/unnamed-secrets.js",
+    "line": 3,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "password embedded in a connection URL"
+  },
+  {
+    "file": "hardcoded-secret/fn-expected/unnamed-secrets.js",
+    "line": 5,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "variable name too short to recognise"
+  },
+  {
+    "file": "hardcoded-secret/fn-expected/unnamed-secrets.js",
+    "line": 7,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "encryption key under a name the rule does not match"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 3,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "a form field name"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 5,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "an endpoint URL"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 7,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "an env var name"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 9,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "read from the environment"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 11,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "placeholder"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 13,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "interpolation placeholder"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 15,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "masked value"
+  },
+  {
+    "file": "hardcoded-secret/tn/not-secrets.js",
+    "line": 17,
+    "rule": "hardcoded-secret",
+    "expected": false,
+    "kind": "tn",
+    "note": "a PEM format marker, no key material"
+  },
+  {
+    "file": "hardcoded-secret/tp/credentials.js",
+    "line": 4,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "hardcoded-secret/tp/credentials.js",
+    "line": 6,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "hardcoded-secret/tp/credentials.js",
+    "line": 9,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "hardcoded-secret/tp/credentials.js",
+    "line": 10,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "hardcoded-secret/tp/credentials.js",
+    "line": 14,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "hardcoded-secret/tp/credentials.js",
+    "line": 17,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "hardcoded-secret/tp/credentials.js",
+    "line": 20,
+    "rule": "hardcoded-secret",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "insecure-random/fn-expected/unnamed-tokens.js",
+    "line": 4,
+    "rule": "insecure-random",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "sensitive use only visible later"
+  },
+  {
+    "file": "insecure-random/fn-expected/unnamed-tokens.js",
+    "line": 9,
+    "rule": "insecure-random",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "cookie value, neutral names"
+  },
+  {
+    "file": "insecure-random/tn/non-security.js",
+    "line": 4,
+    "rule": "insecure-random",
+    "expected": false,
+    "kind": "tn",
+    "note": "timing jitter"
+  },
+  {
+    "file": "insecure-random/tn/non-security.js",
+    "line": 7,
+    "rule": "insecure-random",
+    "expected": false,
+    "kind": "tn",
+    "note": "UI shuffle"
+  },
+  {
+    "file": "insecure-random/tn/non-security.js",
+    "line": 10,
+    "rule": "insecure-random",
+    "expected": false,
+    "kind": "tn",
+    "note": "backoff jitter in an auth-named function"
+  },
+  {
+    "file": "insecure-random/tp/tokens.js",
+    "line": 4,
+    "rule": "insecure-random",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "insecure-random/tp/tokens.js",
+    "line": 7,
+    "rule": "insecure-random",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "insecure-random/tp/tokens.js",
+    "line": 10,
+    "rule": "insecure-random",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "path-traversal/fn-expected/indirect-paths.js",
+    "line": 5,
+    "rule": "path-traversal",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "taint arrives through a parameter"
+  },
+  {
+    "file": "path-traversal/fn-expected/indirect-paths.js",
+    "line": 15,
+    "rule": "path-traversal",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "taint stored in an object property"
+  },
+  {
+    "file": "path-traversal/tn/sanitized-paths.js",
+    "line": 6,
+    "rule": "path-traversal",
+    "expected": false,
+    "kind": "tn",
+    "note": "basename"
+  },
+  {
+    "file": "path-traversal/tn/sanitized-paths.js",
+    "line": 13,
+    "rule": "path-traversal",
+    "expected": false,
+    "kind": "tn",
+    "note": "prefix check after resolve"
+  },
+  {
+    "file": "path-traversal/tn/sanitized-paths.js",
+    "line": 17,
+    "rule": "path-traversal",
+    "expected": false,
+    "kind": "tn",
+    "note": "coerced to a number"
+  },
+  {
+    "file": "path-traversal/tn/sanitized-paths.js",
+    "line": 21,
+    "rule": "path-traversal",
+    "expected": false,
+    "kind": "tn",
+    "note": "fixed path"
+  },
+  {
+    "file": "path-traversal/tn/sanitized-paths.js",
+    "line": 26,
+    "rule": "path-traversal",
+    "expected": false,
+    "kind": "tn",
+    "note": "allow-list lookup"
+  },
+  {
+    "file": "path-traversal/tp/file-access.js",
+    "line": 8,
+    "rule": "path-traversal",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "path-traversal/tp/file-access.js",
+    "line": 12,
+    "rule": "path-traversal",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "path-traversal/tp/file-access.js",
+    "line": 16,
+    "rule": "path-traversal",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "path-traversal/tp/file-access.js",
+    "line": 22,
+    "rule": "path-traversal",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "sql-injection/fn-expected/indirect-sql.js",
+    "line": 4,
+    "rule": "sql-injection",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "taint arrives through a parameter"
+  },
+  {
+    "file": "sql-injection/fn-expected/indirect-sql.js",
+    "line": 13,
+    "rule": "sql-injection",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "query assembled with Array.join"
+  },
+  {
+    "file": "sql-injection/tn/parameterized.js",
+    "line": 4,
+    "rule": "sql-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "placeholder + values"
+  },
+  {
+    "file": "sql-injection/tn/parameterized.js",
+    "line": 8,
+    "rule": "sql-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "query config object"
+  },
+  {
+    "file": "sql-injection/tn/parameterized.js",
+    "line": 13,
+    "rule": "sql-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "placeholders in a variable"
+  },
+  {
+    "file": "sql-injection/tn/parameterized.js",
+    "line": 17,
+    "rule": "sql-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "RegExp.prototype.exec"
+  },
+  {
+    "file": "sql-injection/tn/parameterized.js",
+    "line": 21,
+    "rule": "sql-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "parseInt"
+  },
+  {
+    "file": "sql-injection/tn/parameterized.js",
+    "line": 25,
+    "rule": "sql-injection",
+    "expected": false,
+    "kind": "tn",
+    "note": "literal"
+  },
+  {
+    "file": "sql-injection/tp/string-sql.js",
+    "line": 4,
+    "rule": "sql-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "sql-injection/tp/string-sql.js",
+    "line": 8,
+    "rule": "sql-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "sql-injection/tp/string-sql.js",
+    "line": 14,
+    "rule": "sql-injection",
+    "expected": true,
+    "kind": "tp",
+    "note": "query built in a variable first"
+  },
+  {
+    "file": "sql-injection/tp/string-sql.js",
+    "line": 18,
+    "rule": "sql-injection",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "ssrf/fn-expected/other-clients.js",
+    "line": 6,
+    "rule": "ssrf",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "needle is not a modelled client"
+  },
+  {
+    "file": "ssrf/fn-expected/other-clients.js",
+    "line": 10,
+    "rule": "ssrf",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "got is not a modelled client"
+  },
+  {
+    "file": "ssrf/fn-expected/other-clients.js",
+    "line": 14,
+    "rule": "ssrf",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "taint arrives through a parameter"
+  },
+  {
+    "file": "ssrf/tn/fixed-hosts.js",
+    "line": 4,
+    "rule": "ssrf",
+    "expected": false,
+    "kind": "tn",
+    "note": "fixed host, encoded path"
+  },
+  {
+    "file": "ssrf/tn/fixed-hosts.js",
+    "line": 8,
+    "rule": "ssrf",
+    "expected": false,
+    "kind": "tn",
+    "note": "operator configuration"
+  },
+  {
+    "file": "ssrf/tn/fixed-hosts.js",
+    "line": 12,
+    "rule": "ssrf",
+    "expected": false,
+    "kind": "tn",
+    "note": "literal"
+  },
+  {
+    "file": "ssrf/tn/fixed-hosts.js",
+    "line": 17,
+    "rule": "ssrf",
+    "expected": false,
+    "kind": "tn",
+    "note": "allow-list lookup"
+  },
+  {
+    "file": "ssrf/tn/fixed-hosts.js",
+    "line": 25,
+    "rule": "ssrf",
+    "expected": false,
+    "kind": "tn",
+    "note": "hostname checked against an allow-list"
+  },
+  {
+    "file": "ssrf/tp/outbound.js",
+    "line": 6,
+    "rule": "ssrf",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "ssrf/tp/outbound.js",
+    "line": 11,
+    "rule": "ssrf",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "ssrf/tp/outbound.js",
+    "line": 16,
+    "rule": "ssrf",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "weak-hash/fn-expected/indirect-alg.js",
+    "line": 8,
+    "rule": "weak-hash",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "algorithm held in a constant"
+  },
+  {
+    "file": "weak-hash/fn-expected/indirect-alg.js",
+    "line": 12,
+    "rule": "weak-hash",
+    "expected": true,
+    "kind": "fn-expected",
+    "note": "the md5 npm package"
+  },
+  {
+    "file": "weak-hash/tn/strong-or-non-security.js",
+    "line": 5,
+    "rule": "weak-hash",
+    "expected": false,
+    "kind": "tn",
+    "note": "SHA-256"
+  },
+  {
+    "file": "weak-hash/tn/strong-or-non-security.js",
+    "line": 9,
+    "rule": "weak-hash",
+    "expected": false,
+    "kind": "tn",
+    "note": "HTTP ETag cache validator, not security"
+  },
+  {
+    "file": "weak-hash/tn/strong-or-non-security.js",
+    "line": 13,
+    "rule": "weak-hash",
+    "expected": false,
+    "kind": "tn",
+    "note": "HMAC-SHA-512"
+  },
+  {
+    "file": "weak-hash/tp/md5-sha1.js",
+    "line": 6,
+    "rule": "weak-hash",
+    "expected": true,
+    "kind": "tp"
+  },
+  {
+    "file": "weak-hash/tp/md5-sha1.js",
+    "line": 10,
+    "rule": "weak-hash",
+    "expected": true,
+    "kind": "tp"
+  }
+]

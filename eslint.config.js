@@ -13,6 +13,9 @@ export default [
       "coverage/",
       "test/fixtures/",
       "test/golden/",
+      // benchmark corpus (fetched / generated, untrusted) and deliberately vulnerable cases
+      "bench/corpus/",
+      "bench/js/",
     ],
   },
   js.configs.recommended,

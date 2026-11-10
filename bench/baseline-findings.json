@@ -1,0 +1,581 @@
+{
+  "note": "Raw findings of the rules before the benchmark-driven fixes, re-scored on every run against the current labels and triage.",
+  "analyzer": "js-ast.js at commit 41004e1 (before benchmark-driven fixes)",
+  "synthetic": [
+    {
+      "file": "command-injection/tn/no-shell.js",
+      "line": 27,
+      "rule": "command-injection"
+    },
+    {
+      "file": "command-injection/tp/shell-strings.js",
+      "line": 6,
+      "rule": "command-injection"
+    },
+    {
+      "file": "command-injection/tp/shell-strings.js",
+      "line": 11,
+      "rule": "command-injection"
+    },
+    {
+      "file": "command-injection/tp/shell-strings.js",
+      "line": 17,
+      "rule": "command-injection"
+    },
+    {
+      "file": "command-injection/tp/shell-strings.js",
+      "line": 21,
+      "rule": "command-injection"
+    },
+    {
+      "file": "command-injection/tp/shell-strings.js",
+      "line": 25,
+      "rule": "command-injection"
+    },
+    {
+      "file": "dom-xss/tn/safe-dom.js",
+      "line": 12,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "dom-xss/tn/safe-dom.js",
+      "line": 20,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "dom-xss/tp/html-sinks.js",
+      "line": 4,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "dom-xss/tp/html-sinks.js",
+      "line": 9,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "dom-xss/tp/html-sinks.js",
+      "line": 13,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "dom-xss/tp/html-sinks.js",
+      "line": 17,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "dynamic-eval/tn/literal-and-safe.js",
+      "line": 24,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "dynamic-eval/tp/request-to-eval.js",
+      "line": 5,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "dynamic-eval/tp/request-to-eval.js",
+      "line": 10,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "dynamic-eval/tp/request-to-eval.js",
+      "line": 16,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "dynamic-eval/tp/request-to-eval.js",
+      "line": 21,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "dynamic-eval/tp/request-to-eval.js",
+      "line": 25,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "dynamic-require/tn/fixed-paths.js",
+      "line": 8,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "dynamic-require/tn/fixed-paths.js",
+      "line": 10,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "dynamic-require/tn/fixed-paths.js",
+      "line": 15,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "dynamic-require/tp/user-chosen-module.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "dynamic-require/tp/user-chosen-module.js",
+      "line": 8,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "dynamic-require/tp/user-chosen-module.js",
+      "line": 14,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "hardcoded-secret/tp/credentials.js",
+      "line": 4,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "hardcoded-secret/tp/credentials.js",
+      "line": 6,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "hardcoded-secret/tp/credentials.js",
+      "line": 9,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "hardcoded-secret/tp/credentials.js",
+      "line": 10,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "hardcoded-secret/tp/credentials.js",
+      "line": 14,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "hardcoded-secret/tp/credentials.js",
+      "line": 17,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "hardcoded-secret/tp/credentials.js",
+      "line": 20,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "insecure-random/tn/non-security.js",
+      "line": 10,
+      "rule": "insecure-random"
+    },
+    {
+      "file": "insecure-random/tp/tokens.js",
+      "line": 4,
+      "rule": "insecure-random"
+    },
+    {
+      "file": "insecure-random/tp/tokens.js",
+      "line": 7,
+      "rule": "insecure-random"
+    },
+    {
+      "file": "insecure-random/tp/tokens.js",
+      "line": 10,
+      "rule": "insecure-random"
+    },
+    {
+      "file": "path-traversal/tn/sanitized-paths.js",
+      "line": 13,
+      "rule": "path-traversal"
+    },
+    {
+      "file": "path-traversal/tp/file-access.js",
+      "line": 8,
+      "rule": "path-traversal"
+    },
+    {
+      "file": "path-traversal/tp/file-access.js",
+      "line": 12,
+      "rule": "path-traversal"
+    },
+    {
+      "file": "path-traversal/tp/file-access.js",
+      "line": 16,
+      "rule": "path-traversal"
+    },
+    {
+      "file": "path-traversal/tp/file-access.js",
+      "line": 22,
+      "rule": "path-traversal"
+    },
+    {
+      "file": "sql-injection/tp/string-sql.js",
+      "line": 4,
+      "rule": "sql-injection"
+    },
+    {
+      "file": "sql-injection/tp/string-sql.js",
+      "line": 8,
+      "rule": "sql-injection"
+    },
+    {
+      "file": "sql-injection/tp/string-sql.js",
+      "line": 18,
+      "rule": "sql-injection"
+    },
+    {
+      "file": "ssrf/tn/fixed-hosts.js",
+      "line": 25,
+      "rule": "ssrf"
+    },
+    {
+      "file": "ssrf/tp/outbound.js",
+      "line": 6,
+      "rule": "ssrf"
+    },
+    {
+      "file": "ssrf/tp/outbound.js",
+      "line": 11,
+      "rule": "ssrf"
+    },
+    {
+      "file": "ssrf/tp/outbound.js",
+      "line": 16,
+      "rule": "ssrf"
+    },
+    {
+      "file": "weak-hash/tn/strong-or-non-security.js",
+      "line": 9,
+      "rule": "weak-hash"
+    },
+    {
+      "file": "weak-hash/tp/md5-sha1.js",
+      "line": 6,
+      "rule": "weak-hash"
+    },
+    {
+      "file": "weak-hash/tp/md5-sha1.js",
+      "line": 10,
+      "rule": "weak-hash"
+    }
+  ],
+  "nodegoat": [
+    {
+      "file": "app/assets/vendor/chart/raphael-min.js",
+      "line": 10,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "app/assets/vendor/html5shiv.js",
+      "line": 5,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "app/assets/vendor/jquery.min.js",
+      "line": 4,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "app/assets/vendor/jquery.min.js",
+      "line": 5,
+      "rule": "dom-xss"
+    },
+    {
+      "file": "app/routes/contributions.js",
+      "line": 32,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "app/routes/contributions.js",
+      "line": 33,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "app/routes/contributions.js",
+      "line": 34,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "artifacts/db-reset.js",
+      "line": 18,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "artifacts/db-reset.js",
+      "line": 27,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "artifacts/db-reset.js",
+      "line": 35,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "config/config.js",
+      "line": 7,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "config/config.js",
+      "line": 8,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "config/env/all.js",
+      "line": 8,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "config/env/development.js",
+      "line": 6,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "config/env/test.js",
+      "line": 6,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "Gruntfile.js",
+      "line": 165,
+      "rule": "command-injection"
+    },
+    {
+      "file": "test/security/profile-test.js",
+      "line": 37,
+      "rule": "hardcoded-secret"
+    }
+  ],
+  "packages": [
+    {
+      "file": "ajv/dist/compile/index.js",
+      "line": 89,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "ajv/dist/compile/jtd/parse.js",
+      "line": 50,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "ajv/dist/compile/jtd/serialize.js",
+      "line": 50,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "isomorphic-git/index.cjs",
+      "line": 3476,
+      "rule": "weak-hash"
+    },
+    {
+      "file": "isomorphic-git/index.umd.min.js",
+      "line": 2,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "isomorphic-git/managers/index.cjs",
+      "line": 4217,
+      "rule": "weak-hash"
+    },
+    {
+      "file": "isomorphic-git/managers/index.umd.min.js",
+      "line": 2,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "jose/dist/webapi/key/import.js",
+      "line": 18,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "pino/benchmarks/utils/generate-benchmark-doc.js",
+      "line": 7,
+      "rule": "command-injection"
+    },
+    {
+      "file": "pino/benchmarks/utils/wrap-log-level.js",
+      "line": 18,
+      "rule": "dynamic-eval"
+    },
+    {
+      "file": "pino/test/browser-redaction.test.js",
+      "line": 40,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "pino/test/browser-redaction.test.js",
+      "line": 56,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "pino/test/browser-redaction.test.js",
+      "line": 164,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "pino/test/fixtures/default-exit.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/fixtures/destination-exit.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/fixtures/pretty/null-prototype.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/fixtures/stdout-hack-protection.js",
+      "line": 10,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/fixtures/syncfalse-child.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/fixtures/syncfalse-exit.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/fixtures/syncfalse-flush-exit.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/fixtures/syncfalse.js",
+      "line": 4,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "pino/test/smoke.js",
+      "line": 16,
+      "rule": "command-injection"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12359,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12378,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12452,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12491,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12536,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12604,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12627,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 12641,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 13672,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 15179,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 18601,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 18604,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/index.mjs",
+      "line": 18607,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/internal/experimental-cli-worker.mjs",
+      "line": 2641,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/internal/experimental-cli.mjs",
+      "line": 4907,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/internal/experimental-cli.mjs",
+      "line": 5227,
+      "rule": "weak-hash"
+    },
+    {
+      "file": "prettier/internal/experimental-cli.mjs",
+      "line": 5230,
+      "rule": "weak-hash"
+    },
+    {
+      "file": "prettier/internal/experimental-cli.mjs",
+      "line": 10274,
+      "rule": "dynamic-require"
+    },
+    {
+      "file": "prettier/plugins/flow.js",
+      "line": 1,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "prettier/plugins/flow.mjs",
+      "line": 1,
+      "rule": "hardcoded-secret"
+    },
+    {
+      "file": "ws/lib/websocket-server.js",
+      "line": 387,
+      "rule": "weak-hash"
+    },
+    {
+      "file": "yaml/dist/cli.mjs",
+      "line": 124,
+      "rule": "dynamic-require"
+    }
+  ],
+  "crashes": {
+    "synthetic": 1,
+    "nodegoat": 2,
+    "packages": 3
+  },
+  "binaryBefore": {
+    "note": "Mach-O agreement on the same host before the two parser fixes (7 clang fixtures then; the exec-stack fixture was added afterwards).",
+    "macho": {
+      "imports": [316, 319],
+      "archs": [175, 176]
+    },
+    "fixed": [
+      "x86_64h slices were reported as x86_64 (cpusubtype 8 ignored), so a 3-slice fat binary listed x86_64 twice",
+      "chained-fixup entries with lib ordinal -3 (weak-definition coalescing of symbols the binary defines itself, e.g. C++ typeinfo) were counted as imports"
+    ]
+  }
+}

@@ -9,3 +9,7 @@ package-lock.json
 # recorded engine output and golden reports are kept byte-for-byte
 test/fixtures/
 test/golden/
+# benchmark: fetched corpus, and labelled cases whose line numbers must not move
+bench/corpus/
+bench/js/
+bench/results.json
