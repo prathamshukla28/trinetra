@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { copyFixture, ROOT, runCli, tempDir } from "./helpers/cli.js";
@@ -107,4 +108,20 @@ test("compare writes both reports to the output dir", () => {
   assert.match(md, /\*\*Added\*\* \(1\):\n\n- `audit`/);
   assert.match(md, /\| command-exec \| 1 \| 0 \| 🟢 -1 \|/);
   assert.ok(fs.existsSync(path.join(cwd, "trinetra-out", "sample-cli-vs-v2.html")));
+});
+
+test("`npm run demo` targets a tracked example that works in a fresh clone", () => {
+  const { scripts } = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
+  const m = /^node src\/cli\.js teardown (\S+)$/.exec(scripts.demo);
+  assert.ok(m, `unexpected demo script: ${scripts.demo}`);
+  const target = m[1];
+  assert.ok(fs.existsSync(path.join(ROOT, target)), `${target} is missing`);
+  // targets/ is gitignored, so a demo pointing there only works on the author's machine.
+  const ignored = spawnSync("git", ["check-ignore", "-q", target], { cwd: ROOT });
+  if (ignored.status !== 128) assert.notEqual(ignored.status, 0, `${target} is gitignored`);
+  const out = tempDir();
+  const r = runCli(["teardown", target, "--no-semgrep", "-o", out], { cwd: ROOT });
+  assert.equal(r.code, 0, r.stderr);
+  const json = JSON.parse(fs.readFileSync(path.join(out, `${path.basename(target)}.json`), "utf8"));
+  assert.equal(json.findings.length, 5);
 });

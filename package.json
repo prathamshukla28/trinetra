@@ -19,8 +19,8 @@
   ],
   "scripts": {
     "start": "node src/cli.js",
-    "demo": "node src/cli.js teardown targets/sample-cli",
-    "demo:asar": "asar pack examples/demo-electron-app targets/demo-app.asar && node src/cli.js teardown targets/demo-app.asar",
+    "demo": "node src/cli.js teardown examples/sample-cli",
+    "demo:asar": "asar pack examples/demo-electron-app trinetra-out/demo-app.asar && node src/cli.js teardown trinetra-out/demo-app.asar",
     "test": "node --test test/*.test.js",
     "test:coverage": "node --test --experimental-test-coverage test/*.test.js",
     "lint": "eslint .",

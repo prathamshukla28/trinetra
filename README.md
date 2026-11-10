@@ -123,7 +123,7 @@ JavaScript corpora:
 ## Demo
 
 ```text
-$ trinetra teardown targets/sample-cli --no-semgrep
+$ trinetra teardown examples/sample-cli --no-semgrep
 
 [1/4 INSPECT]     found 4 function(s) via rea-javascript-application
 [2/4 UNDERSTAND]  1 source file(s), 4 function(s); REA recovered 4 unit(s).
@@ -134,11 +134,11 @@ $ trinetra teardown targets/sample-cli --no-semgrep
 ```
 
 ```text
-🔴 HIGH   Shell command built from a non-literal value   index.js:14  in runUserCommand
-🔴 HIGH   Dynamic code execution (eval)                  index.js:22  in evalExpression
-🔴 HIGH   Hardcoded secret  "sk_l…(redacted)"            index.js:6
-🟠 MEDIUM Weak hashing algorithm (md5)                   index.js:9   in login
-🟡 LOW    Math.random() for a security-sensitive value   index.js:18  in makeToken
+🔴 HIGH   Shell command built from a non-literal value        index.js:14  in runUserCommand
+🔴 HIGH   Dynamic code execution with a non-literal argument  index.js:22  in evalExpression
+🔴 HIGH   Hardcoded secret  "sk_l…(redacted)"                 index.js:6
+🟠 MEDIUM Weak hashing algorithm (MD5 / SHA-1)                index.js:9   in login
+🟡 LOW    Math.random() used for a security-sensitive value   index.js:18  in makeToken
 ```
 
 A native binary, without Ghidra installed:
@@ -153,8 +153,11 @@ $ trinetra teardown /bin/ls --no-decompile
 
 ## Install
 
+Not yet published to npm (`@prathamshukla28/trinetra` is the planned name). Until then, install
+from source, or pack it and install the tarball globally:
+
 ```bash
-npm install -g @prathamshukla28/trinetra      # or: npx @prathamshukla28/trinetra …
+npm pack && npm install -g ./prathamshukla28-trinetra-*.tgz
 ```
 
 From source:
@@ -164,6 +167,9 @@ git clone https://github.com/prathamshukla28/trinetra.git
 cd trinetra && npm install
 npm run demo
 ```
+
+`npm run demo:asar` packs the bundled Electron example and tears it down; it needs the
+`asar` CLI (`npm install -g @electron/asar`).
 
 **Requirements:** Node.js ≥ 22. Everything else is optional:
 
