@@ -86,12 +86,17 @@ export function isStaticString(n) {
   return false;
 }
 
-const staticValue = (n) =>
-  n.type === "Literal"
-    ? n.value
-    : n.type === "TemplateLiteral"
-      ? n.quasis.map((q) => q.value.cooked).join("")
-      : null;
+// Value of a node accepted by isStaticString.
+function staticValue(n) {
+  if (n.type === "Literal") return n.value;
+  if (n.type === "TemplateLiteral") return n.quasis.map((q) => q.value.cooked).join("");
+  if (n.type === "BinaryExpression" && n.operator === "+") {
+    const l = staticValue(n.left);
+    const r = staticValue(n.right);
+    return l === null || r === null ? null : `${l}${r}`;
+  }
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // Rule metadata
@@ -149,16 +154,20 @@ const RULES = {
   },
 };
 
+// Token formats must start at a token boundary: an "AKIA…" run inside a large
+// base64 blob (e.g. an inlined WASM data: URI) is not an AWS key.
 const SECRET_PATTERNS = [
-  /AKIA[0-9A-Z]{16}/,
-  /ASIA[0-9A-Z]{16}/,
-  /(?:sk|rk)_live_[0-9A-Za-z]{10,}/,
-  /gh[pousr]_[A-Za-z0-9]{36}/,
-  /github_pat_[A-Za-z0-9_]{22,}/,
-  /xox[baprs]-[A-Za-z0-9-]{10,}/,
-  /AIza[0-9A-Za-z_-]{35}/,
-  /sk-ant-[A-Za-z0-9_-]{20,}/,
-  /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY-----/,
+  /(?<![A-Za-z0-9+/])AKIA[0-9A-Z]{16}(?![A-Za-z0-9])/,
+  /(?<![A-Za-z0-9+/])ASIA[0-9A-Z]{16}(?![A-Za-z0-9])/,
+  /(?<![A-Za-z0-9])(?:sk|rk)_live_[0-9A-Za-z]{10,}/,
+  /(?<![A-Za-z0-9])gh[pousr]_[A-Za-z0-9]{36}/,
+  /(?<![A-Za-z0-9])github_pat_[A-Za-z0-9_]{22,}/,
+  /(?<![A-Za-z0-9])xox[baprs]-[A-Za-z0-9-]{10,}/,
+  /(?<![A-Za-z0-9+/])AIza[0-9A-Za-z_-]{35}/,
+  /(?<![A-Za-z0-9])sk-ant-[A-Za-z0-9_-]{20,}/,
+  // A PEM header followed by key material (a bare "-----BEGIN … KEY-----" marker
+  // string is a format check, not a secret). `\\n` covers escapes in source text.
+  /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY-----(?:\s|\\n)*[A-Za-z0-9+/=]{32}/,
 ];
 const SECRET_NAME =
   /(pass(word|wd)?|secret|api[_-]?key|apikey|access[_-]?key|auth[_-]?token|token|private[_-]?key)/i;
@@ -295,6 +304,20 @@ function splitCallee(callee) {
   return i < 0 ? [callee, ""] : [callee.slice(0, i), callee.slice(i + 1)];
 }
 
+function patternNames(p, out = []) {
+  if (!p) return out;
+  if (p.type === "Identifier") out.push(p.name);
+  else if (p.type === "ObjectPattern")
+    for (const x of p.properties) patternNames(x.type === "Property" ? x.value : x.argument, out);
+  else if (p.type === "ArrayPattern") for (const e of p.elements) patternNames(e, out);
+  else if (p.type === "AssignmentPattern") patternNames(p.left, out);
+  else if (p.type === "RestElement") patternNames(p.argument, out);
+  return out;
+}
+
+const isStringBuild = (n) =>
+  n?.type === "TemplateLiteral" || (n?.type === "BinaryExpression" && n.operator === "+");
+
 // ---------------------------------------------------------------------------
 // The analyzer
 
@@ -305,12 +328,21 @@ class FunctionCtx {
     this.parent = parent;
     this.params = params;
     this.tainted = new Map();
+    // name → { value: string | null, built: boolean } — `value` is set for a
+    // `const` bound to a compile-time constant; `built` marks a binding whose
+    // value was assembled by concatenation / template (for SQL strings).
+    this.defs = new Map();
     this.capabilities = new Map(); // capability → Set(callee)
     this.calls = [];
   }
 
   lookup(name) {
     for (let c = this; c; c = c.parent) if (c.tainted.has(name)) return c.tainted.get(name);
+    return null;
+  }
+
+  lookupDef(name) {
+    for (let c = this; c; c = c.parent) if (c.defs.has(name)) return c.defs.get(name);
     return null;
   }
 
@@ -513,6 +545,81 @@ class JsAnalyzer {
     return `?.${p}`; // unknown receiver: method name only
   }
 
+  // ---- constants -----------------------------------------------------------
+  // The string a node always evaluates to, or null when it can vary. Follows
+  // `const` bindings to constants, __dirname/__filename, path.join/resolve of
+  // constants and require.resolve(constant) — values fixed at authoring time.
+  constValue(n, ctx) {
+    if (!n) return null;
+    switch (n.type) {
+      case "Literal":
+        return typeof n.value === "string" || typeof n.value === "number" ? String(n.value) : null;
+      case "TemplateLiteral": {
+        let out = "";
+        for (let i = 0; i < n.quasis.length; i++) {
+          out += n.quasis[i].value.cooked ?? "";
+          if (i < n.expressions.length) {
+            const v = this.constValue(n.expressions[i], ctx);
+            if (v === null) return null;
+            out += v;
+          }
+        }
+        return out;
+      }
+      case "BinaryExpression": {
+        if (n.operator !== "+") return null;
+        const l = this.constValue(n.left, ctx);
+        const r = l === null ? null : this.constValue(n.right, ctx);
+        return r === null ? null : l + r;
+      }
+      case "Identifier":
+        if (n.name === "__dirname" || n.name === "__filename") return `<${n.name}>`;
+        return ctx.lookupDef(n.name)?.value ?? null;
+      case "CallExpression": {
+        const callee = this.resolve(n.callee);
+        const args = n.arguments.map((a) => this.constValue(a, ctx));
+        if (args.some((a) => a === null)) return null;
+        if (callee === "path.join" || callee === "path.resolve" || callee === "path.normalize")
+          return args.join("/");
+        const isRequireResolve =
+          n.callee.type === "MemberExpression" &&
+          n.callee.object.type === "Identifier" &&
+          n.callee.object.name === "require" &&
+          propName(n.callee) === "resolve";
+        if (isRequireResolve && args.length === 1) return args[0];
+        return null;
+      }
+      default:
+        return null;
+    }
+  }
+
+  isConst(n, ctx) {
+    return isStaticString(n) || this.constValue(n, ctx) !== null;
+  }
+
+  // A call to a known sanitizer: resolved (`path.basename`, `?.escapeHtml`) or a
+  // bare function of a sanitizer's name (`escapeHtml(s)`).
+  isSanitizerCall(n) {
+    if (n?.type !== "CallExpression") return false;
+    const callee = this.resolve(n.callee);
+    if (callee) return SANITIZERS.has(callee) || SANITIZERS.has(`?.${splitCallee(callee)[1]}`);
+    return n.callee.type === "Identifier" && SANITIZERS.has(`?.${n.callee.name}`);
+  }
+
+  // A binding assembled from pieces (`"…" + x`, template) — a built SQL string.
+  isBuilt(n, ctx) {
+    if (isStringBuild(n)) return true;
+    return n?.type === "Identifier" && Boolean(ctx.lookupDef(n.name)?.built);
+  }
+
+  define(name, init, ctx, { constant }) {
+    ctx.defs.set(name, {
+      value: constant && init ? this.constValue(init, ctx) : null,
+      built: Boolean(init) && this.isBuilt(init, ctx),
+    });
+  }
+
   // ---- taint ---------------------------------------------------------------
   taintOf(n, ctx) {
     if (!n) return null;
@@ -551,9 +658,7 @@ class JsAnalyzer {
         );
       case "CallExpression":
       case "NewExpression": {
-        const callee = this.resolve(n.callee);
-        if (callee && SANITIZERS.has(callee)) return null;
-        if (callee && SANITIZERS.has(`?.${splitCallee(callee)[1]}`)) return null;
+        if (this.isSanitizerCall(n)) return null;
         const recv = n.callee.type === "MemberExpression" ? this.taintOf(n.callee.object, ctx) : null;
         return recv ?? this.firstTaint(n.arguments, ctx);
       }
@@ -628,21 +733,21 @@ class JsAnalyzer {
     // Dynamic code.
     const isFunctionCtor = callee === "global.Function";
     if (
-      (callee === "global.eval" && first && !isStaticString(first)) ||
-      (isFunctionCtor && args.some((a) => !isStaticString(a)))
+      (callee === "global.eval" && first && !this.isConst(first, ctx)) ||
+      (isFunctionCtor && args.some((a) => !this.isConst(a, ctx)))
     ) {
       this.report("dynamic-eval", n, ctx, { taint: this.firstTaint(args, ctx) });
     } else if (
       callee &&
       /^vm\.(runInThisContext|runInNewContext|runInContext|compileFunction|Script)$/.test(callee)
     ) {
-      if (first && !isStaticString(first))
+      if (first && !this.isConst(first, ctx))
         this.report("dynamic-eval", n, ctx, { taint: this.taintOf(first, ctx) });
     }
 
     // Commands.
     if (callee === "child_process.exec" || callee === "child_process.execSync") {
-      if (first && !isStaticString(first))
+      if (first && !this.isConst(first, ctx))
         this.report("command-injection", n, ctx, { taint: this.taintOf(first, ctx) });
     } else if (callee && /^child_process\.(spawn|spawnSync|execFile|execFileSync)$/.test(callee)) {
       const opts = args.findLast((a) => a.type === "ObjectExpression");
@@ -650,8 +755,10 @@ class JsAnalyzer {
       const shellOn = shell && !(shell.value.type === "Literal" && !shell.value.value);
       if (shellOn) {
         const dynamic =
-          args.some((a) => a !== opts && !isStaticString(a) && a.type !== "ArrayExpression") ||
-          args.some((a) => a.type === "ArrayExpression" && a.elements.some((e) => e && !isStaticString(e)));
+          args.some((a) => a !== opts && !this.isConst(a, ctx) && a.type !== "ArrayExpression") ||
+          args.some(
+            (a) => a.type === "ArrayExpression" && a.elements.some((e) => e && !this.isConst(e, ctx)),
+          );
         const taint = this.firstTaint(
           args.filter((a) => a !== opts),
           ctx,
@@ -665,23 +772,24 @@ class JsAnalyzer {
     }
 
     // Dynamic module loading.
-    if (callee === "global.require" && first && !isStaticString(first))
+    if (callee === "global.require" && first && !this.isConst(first, ctx))
       this.report("dynamic-require", n, ctx, { taint: this.taintOf(first, ctx) });
 
     // DOM sinks.
-    if ((callee === "document.write" || callee === "document.writeln") && first && !isStaticString(first)) {
+    const htmlSink = (v) => v && !this.isConst(v, ctx) && !this.isSanitizerCall(v);
+    if ((callee === "document.write" || callee === "document.writeln") && htmlSink(first)) {
       const taint = this.taintOf(first, ctx);
       this.report("dom-xss", n, ctx, { taint, severity: taint ? "high" : undefined });
     }
-    if (callee === "?.insertAdjacentHTML" && args[1] && !isStaticString(args[1])) {
+    if (callee === "?.insertAdjacentHTML" && htmlSink(args[1])) {
       const taint = this.taintOf(args[1], ctx);
       this.report("dom-xss", n, ctx, { taint, severity: taint ? "high" : undefined });
     }
 
     // Weak hashes.
-    if (callee && /(^crypto|^\?)\.createHash$/.test(callee) && first && isStaticString(first)) {
-      const alg = String(staticValue(first)).toLowerCase();
-      if (["md5", "sha1", "md4", "md2", "sha-1"].includes(alg))
+    const alg = callee && /(^crypto|^\?)\.createHash$/.test(callee) ? this.constValue(first, ctx) : null;
+    if (alg !== null) {
+      if (["md5", "sha1", "md4", "md2", "sha-1"].includes(alg.toLowerCase()))
         this.report("weak-hash", n, ctx, { confidence: "high", detail: `Algorithm: ${alg}.` });
     }
 
@@ -711,10 +819,9 @@ class JsAnalyzer {
       if (taint) this.report("path-traversal", n, ctx, { taint });
     }
     if (callee && /^\?\.(query|execute|raw|exec)$/.test(callee) && !isStaticString(first)) {
-      const taint =
-        first.type === "TemplateLiteral" || first.type === "BinaryExpression"
-          ? this.taintOf(first, ctx)
-          : null;
+      // Only a string assembled from pieces — directly or via a variable — is an
+      // injectable query; `query(sql, params)` / `query({ text, values })` are not.
+      const taint = this.isBuilt(first, ctx) ? this.taintOf(first, ctx) : null;
       if (taint && callee !== "?.exec") this.report("sql-injection", n, ctx, { taint });
     }
     const isRequest =
@@ -732,7 +839,9 @@ class JsAnalyzer {
     if (!valueNode || !isStaticString(valueNode)) return;
     const value = staticValue(valueNode);
     const line = this.lines[node.loc.start.line - 1] ?? "";
-    const evidence = line.trim().replace(value, redact(value));
+    const evidence = line.includes(value)
+      ? line.trim().replace(value, redact(value))
+      : `${name ?? "(value)"} = ${redact(value)}`; // assembled by concatenation
     if (looksLikeSecretValue(value)) {
       this.report("hardcoded-secret", node, ctx, {
         confidence: "high",
@@ -783,6 +892,8 @@ class JsAnalyzer {
       );
       const fctx = new FunctionCtx(name, n.loc.start.line, ctx, params);
       fctx.endLine = n.loc.end.line;
+      for (const p of n.params)
+        for (const id of patternNames(p)) fctx.defs.set(id, { value: null, built: false });
       this.functions.push(fctx);
       for (const p of n.params) this.walk(p, fctx, n);
       this.walk(n.body, fctx, n);
@@ -796,6 +907,8 @@ class JsAnalyzer {
         if (n.init) this.walk(n.init, ctx, n);
         this.declNames.pop();
         this.bindPattern(n.id, n.init ? this.taintOf(n.init, ctx) : null, ctx);
+        if (name) this.define(name, n.init, ctx, { constant: parent?.kind === "const" });
+        else for (const id of patternNames(n.id)) ctx.defs.set(id, { value: null, built: false });
         if (name) this.checkSecret(name, n.init, n, ctx);
         else if (n.init) this.walk(n.id, ctx, n);
         return;
@@ -806,13 +919,19 @@ class JsAnalyzer {
         this.walk(n.right, ctx, n);
         this.declNames.pop();
         if (n.left.type === "MemberExpression") this.walk(n.left, ctx, n);
+        if (n.left.type === "Identifier") {
+          const prev = ctx.lookupDef(n.left.name);
+          const built =
+            n.operator === "+=" || this.isBuilt(n.right, ctx) || (n.operator !== "=" && prev?.built);
+          ctx.defs.set(n.left.name, { value: null, built: Boolean(built) });
+        }
         if (n.left.type === "Identifier" || n.left.type.endsWith("Pattern")) {
           const label = this.taintOf(n.right, ctx);
           if (n.operator === "=") this.bindPattern(n.left, label, ctx);
           else if (label) this.bindPattern(n.left, label, ctx);
         }
         if (n.left.type === "MemberExpression" && /^(innerHTML|outerHTML)$/.test(propName(n.left) ?? "")) {
-          if (!isStaticString(n.right)) {
+          if (!this.isConst(n.right, ctx) && !this.isSanitizerCall(n.right)) {
             const taint = this.taintOf(n.right, ctx);
             this.report("dom-xss", n, ctx, { taint, severity: taint ? "high" : undefined });
           }
@@ -830,7 +949,7 @@ class JsAnalyzer {
         this.checkCall(n, ctx);
         break;
       case "ImportExpression":
-        if (!isStaticString(n.source))
+        if (!this.isConst(n.source, ctx))
           this.report("dynamic-require", n, ctx, { taint: this.taintOf(n.source, ctx) });
         break;
       case "MemberExpression": {
@@ -938,7 +1057,22 @@ export function analyzeJs(text, file = "<input>") {
       findings: regexFallback(file, text),
     };
   }
-  const a = new JsAnalyzer(file, text, ast).run();
+  let a;
+  try {
+    a = new JsAnalyzer(file, text, ast).run();
+  } catch (err) {
+    // An analyzer bug must cost one file's AST findings, not the whole run.
+    return {
+      file,
+      parsed: false,
+      error: `internal analyzer error: ${err.message}`,
+      imports: [],
+      exports: [],
+      functions: [],
+      topLevel: { capabilities: {}, calls: [] },
+      findings: regexFallback(file, text),
+    };
+  }
   return {
     file,
     parsed: true,

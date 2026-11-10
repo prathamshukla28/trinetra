@@ -61,7 +61,7 @@ const CPU_ARCH_ABI64_32 = 0x02000000;
 export function cpuName(cputype, cpusubtype) {
   const base = cputype & 0xffffff;
   const sub = cpusubtype & 0xff;
-  if (base === 7) return cputype & CPU_ARCH_ABI64 ? "x86_64" : "i386";
+  if (base === 7) return cputype & CPU_ARCH_ABI64 ? (sub === 8 ? "x86_64h" : "x86_64") : "i386";
   if (base === 12) {
     if (cputype & CPU_ARCH_ABI64) return sub === 2 ? "arm64e" : "arm64";
     if (cputype & CPU_ARCH_ABI64_32) return "arm64_32";
@@ -139,6 +139,8 @@ function parseCodeSignature(src, dataoff, datasize) {
   return sig;
 }
 
+const BIND_SPECIAL_DYLIB_WEAK_LOOKUP = -3;
+
 // Imported symbol names from the chained-fixups import table (macOS 12+ binaries).
 function chainedImports(src, dataoff, datasize, u32) {
   const blob = src.read(dataoff, Math.min(datasize, 64 * 1024 * 1024));
@@ -153,6 +155,11 @@ function chainedImports(src, dataoff, datasize, u32) {
   for (let i = 0; i < count; i++) {
     const o = importsOffset + i * stride;
     if (o + stride > blob.length) break;
+    // lib_ordinal is a signed 8-bit (formats 1/2) or 16-bit (format 3) field.
+    // BIND_SPECIAL_DYLIB_WEAK_LOOKUP (-3) marks weak-definition coalescing of a
+    // symbol the binary defines itself (C++ typeinfo, inline statics): not an import.
+    const ordinal = format === 3 ? (u32(blob, o) << 16) >> 16 : (u32(blob, o) << 24) >> 24;
+    if (ordinal === BIND_SPECIAL_DYLIB_WEAK_LOOKUP) continue;
     const nameOff = format === 3 ? u32(blob, o + 4) : u32(blob, o) >>> 9;
     const name = cstring(blob, symbolsOffset + nameOff);
     if (name) names.push(name);

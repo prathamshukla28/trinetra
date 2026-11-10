@@ -151,7 +151,7 @@ async function inspectNative(file, ctx, opts, { bundle } = {}) {
 // ---------------------------------------------------------------------------
 // Source
 
-function collectSourceFiles(target) {
+export function collectSourceFiles(target) {
   if (fs.statSync(target).isFile()) return [target];
   const out = [];
   const walk = (dir) => {

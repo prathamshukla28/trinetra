@@ -192,3 +192,25 @@ test(
     assert.ok(!rules(r).includes("binary-no-hardened-runtime"));
   },
 );
+
+// --- regressions found by the accuracy benchmark (bench/, oracle: otool/nm/lipo) ---
+
+test("cpuName: x86_64h (cpusubtype 8) is distinct from x86_64", () => {
+  assert.equal(cpuName(0x01000007, 8), "x86_64h");
+  assert.equal(cpuName(0x01000007, 3), "x86_64");
+});
+
+test("chained fixups: weak-definition coalescing entries are not imports", () => {
+  // lib_ordinal -3 (BIND_SPECIAL_DYLIB_WEAK_LOOKUP) binds a symbol the binary
+  // defines itself; nm -u does not list it, and neither should Trinetra.
+  const bin = buildMachO({
+    imports: [],
+    chained: [
+      { name: "_strcpy", ordinal: 1 },
+      { name: "__ZTSNSt3__114default_deleteIiEE", ordinal: -3 },
+      { name: "___stack_chk_fail", ordinal: 2 },
+    ],
+  });
+  const info = parseMachO(new BufferSource(bin));
+  assert.deepEqual(info.imports, ["__stack_chk_fail", "strcpy"]);
+});

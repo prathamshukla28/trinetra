@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeJs, isStaticString, parseJs } from "../src/analysis/js-ast.js";
+import { analyzeJs, isStaticString, looksLikeSecretValue, parseJs } from "../src/analysis/js-ast.js";
 
 const find = (src) => analyzeJs(src, "t.js").findings;
 const ruleSet = (src) => find(src).map((f) => f.rule);
@@ -212,4 +212,92 @@ test("isStaticString", () => {
   assert.equal(isStaticString(expr("`a${b}`")), false);
   assert.equal(isStaticString(expr(`"a" + b`)), false);
   assert.equal(isStaticString(expr(`42`)), false);
+});
+
+// --- regressions found by the accuracy benchmark (bench/) ---------------------
+
+test("a concatenated string literal no longer crashes the analyzer", () => {
+  // Was: TypeError in checkSecret (staticValue returned null for "a" + "b"),
+  // which aborted analysis of the whole file (NodeGoat session.js, ws, minimatch).
+  const r = analyzeJs(`const password = "Tr0ub4dor" + "&3xyz-prod";`, "t.js");
+  assert.equal(r.parsed, true);
+  const f = r.findings.find((x) => x.rule === "hardcoded-secret");
+  assert.ok(f, "concatenated secret is still reported");
+  assert.doesNotMatch(f.evidence, /Tr0ub4dor|3xyz-prod/, "evidence stays redacted");
+});
+
+test("PEM: a bare header is a format marker, a header with key material is a secret", () => {
+  const header = ["-----BEGIN", "PRIVATE KEY-----"].join(" ");
+  assert.equal(looksLikeSecretValue(header), false);
+  assert.equal(looksLikeSecretValue(`${header}\n${"MIIEvQIBADANBgkqhkiG9w0BAQEFAASC".repeat(2)}`), true);
+  assert.ok(!has(`if (pem.indexOf("${header}") !== 0) throw new Error("bad");`, "hardcoded-secret"));
+});
+
+test("token patterns need a boundary: AKIA… inside a base64 blob is not a key", () => {
+  const key = ["AKIA", "IOSFODNN7EXAMPLE"].join("");
+  assert.equal(looksLikeSecretValue(key), true);
+  assert.equal(looksLikeSecretValue(`data:application/wasm;base64,AGFzbQEAhAB${key}QQYQJ`), false);
+});
+
+test("constants: const-bound literals, __dirname paths and require.resolve are not dynamic", () => {
+  const cp = `const { exec } = require("child_process");`;
+  assert.ok(!has(`${cp} const cmd = "uptime"; exec(cmd);`, "command-injection"));
+  assert.ok(!has(`const expr = "6 * " + 7; eval(expr);`, "dynamic-eval"));
+  assert.ok(
+    !has(`const path = require("path"); require(path.join(__dirname, "config.json"));`, "dynamic-require"),
+  );
+  assert.ok(!has(`require(require.resolve("./package.json"));`, "dynamic-require"));
+  assert.ok(!has(`require(__dirname + "/../config/env/all.js");`, "dynamic-require"));
+});
+
+test("constants: let/var, parameters and inner redeclarations still count as dynamic", () => {
+  const cp = `const { exec } = require("child_process");`;
+  assert.ok(has(`${cp} let cmd = "uptime"; exec(cmd);`, "command-injection"));
+  assert.ok(has(`${cp} const cmd = "uptime"; function f(cmd) { exec(cmd); }`, "command-injection"));
+  assert.ok(
+    has(`${cp} const cmd = "uptime"; function f(x) { let cmd = x; exec(cmd); }`, "command-injection"),
+  );
+  assert.ok(has(`const name = process.argv[2]; require("./plugins/" + name);`, "dynamic-require"));
+});
+
+test("weak-hash resolves an algorithm held in a const", () => {
+  assert.ok(has(`const crypto = require("crypto"); const ALG = "md5"; crypto.createHash(ALG);`, "weak-hash"));
+  assert.ok(
+    !has(`const crypto = require("crypto"); const ALG = "sha256"; crypto.createHash(ALG);`, "weak-hash"),
+  );
+});
+
+test("sql-injection follows a query string built in a variable, but not parameterized forms", () => {
+  assert.ok(
+    has(
+      `function h(req, db) { const sql = "SELECT * FROM t WHERE id = " + req.query.id; return db.query(sql); }`,
+      "sql-injection",
+    ),
+  );
+  assert.ok(
+    has(
+      `function h(req, db) { let sql = "SELECT * FROM t WHERE a = 1"; sql += " AND b = " + req.body.b; return db.query(sql); }`,
+      "sql-injection",
+    ),
+  );
+  assert.ok(
+    !has(
+      `function h(req, db) { const sql = "SELECT * FROM t WHERE id = $1"; return db.query(sql, [req.query.id]); }`,
+      "sql-injection",
+    ),
+  );
+  assert.ok(
+    !has(
+      `function h(req, db) { return db.query({ text: "SELECT $1", values: [req.query.id] }); }`,
+      "sql-injection",
+    ),
+  );
+});
+
+test("DOM sinks: an explicit sanitizer call is not XSS; raw values still are", () => {
+  assert.ok(!has(`el.innerHTML = DOMPurify.sanitize(location.hash);`, "dom-xss"));
+  assert.ok(!has(`el.innerHTML = escapeHtml(s);`, "dom-xss"));
+  assert.ok(!has(`document.write(escapeHtml(location.search));`, "dom-xss"));
+  assert.ok(has(`el.innerHTML = location.hash;`, "dom-xss"));
+  assert.ok(has(`el.innerHTML = render(s);`, "dom-xss"));
 });

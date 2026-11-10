@@ -136,7 +136,8 @@ export function buildElf({
 const align = (n, a) => Math.ceil(n / a) * a;
 
 /**
- * Thin 64-bit Mach-O (arm64) with LC_SEGMENT_64 + LC_SYMTAB.
+ * Thin 64-bit Mach-O (arm64) with LC_SEGMENT_64 + LC_SYMTAB, and optionally an
+ * LC_DYLD_CHAINED_FIXUPS import table (`chained`: [{ name, ordinal }], format 1).
  */
 export function buildMachO({
   pie = true,
@@ -144,15 +145,36 @@ export function buildMachO({
   wx = false,
   imports = ["_puts"],
   cputype = 0x0100000c,
+  chained = null,
 } = {}) {
   const strtab = Buffer.from(`\0${imports.join("\0")}\0`);
   const nsyms = imports.length;
   const segSize = 72;
   const symtabCmdSize = 24;
-  const sizeofcmds = segSize + symtabCmdSize;
+  const chainedCmdSize = chained ? 16 : 0;
+  const sizeofcmds = segSize + symtabCmdSize + chainedCmdSize;
   const symoff = align(32 + sizeofcmds, 8);
   const stroff = symoff + 16 * nsyms;
-  const total = stroff + strtab.length;
+  let fixups = null;
+  if (chained) {
+    // dyld_chained_fixups_header (28 bytes), then DYLD_CHAINED_IMPORT entries, then names.
+    const names = Buffer.from(`\0${chained.map((c) => c.name).join("\0")}\0`);
+    const importsOffset = 28;
+    const symbolsOffset = importsOffset + 4 * chained.length;
+    fixups = Buffer.alloc(symbolsOffset + names.length);
+    fixups.writeUInt32LE(importsOffset, 8);
+    fixups.writeUInt32LE(symbolsOffset, 12);
+    fixups.writeUInt32LE(chained.length, 16);
+    fixups.writeUInt32LE(1, 20); // DYLD_CHAINED_IMPORT
+    let nameOff = 1;
+    chained.forEach((c, i) => {
+      fixups.writeUInt32LE(((nameOff << 9) | (c.ordinal & 0xff)) >>> 0, importsOffset + 4 * i);
+      nameOff += Buffer.byteLength(c.name) + 1;
+    });
+    names.copy(fixups, symbolsOffset);
+  }
+  const fixupsOff = align(stroff + strtab.length, 8);
+  const total = fixups ? fixupsOff + fixups.length : stroff + strtab.length;
   const b = Buffer.alloc(total);
   let flags = 0;
   if (pie) flags |= 0x200000;
@@ -161,7 +183,7 @@ export function buildMachO({
   b.writeUInt32LE(cputype, 4);
   b.writeUInt32LE(0, 8);
   b.writeUInt32LE(2, 12); // MH_EXECUTE
-  b.writeUInt32LE(2, 16); // ncmds
+  b.writeUInt32LE(chained ? 3 : 2, 16); // ncmds
   b.writeUInt32LE(sizeofcmds, 20);
   b.writeUInt32LE(flags, 24);
   // LC_SEGMENT_64 "__TEXT"
@@ -179,6 +201,14 @@ export function buildMachO({
   b.writeUInt32LE(nsyms, o + 12);
   b.writeUInt32LE(stroff, o + 16);
   b.writeUInt32LE(strtab.length, o + 20);
+  if (fixups) {
+    o += symtabCmdSize;
+    b.writeUInt32LE(0x80000034, o); // LC_DYLD_CHAINED_FIXUPS
+    b.writeUInt32LE(chainedCmdSize, o + 4);
+    b.writeUInt32LE(fixupsOff, o + 8);
+    b.writeUInt32LE(fixups.length, o + 12);
+    fixups.copy(b, fixupsOff);
+  }
   let strx = 1;
   imports.forEach((name, i) => {
     const s = symoff + 16 * i;
