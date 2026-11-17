@@ -57,7 +57,7 @@
     "@anthropic-ai/sdk": "^1.3.0",
     "acorn": "^8.15.0",
     "acorn-jsx": "^5.3.2",
-    "rea-agents": "^6.8.0"
+    "rea-agents": "^6.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
